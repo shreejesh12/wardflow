@@ -9,136 +9,214 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --sage:#ccd5ae; --sage-lt:#e9edc9; --cream:#fefae0; --tan-cream:#faedcd; --tan:#d4a373;
-    --bg:#f7f3df; --card:#fffef7; --ink:#3a4030; --ink-soft:#5b6350; --mut:#8a8f78;
-    --line:#e3dcc0; --line-strong:#d0c7a4;
-    --acc:#a97b4f; --acc-deep:#8a6138;
-    --green:#4e7a45; --green-bg:#e6eedd;
-    --red:#b04a3c; --red-bg:#f7e4de;
-    --amber:#96660a; --amber-bg:#faedcd;
-    --info:#6b7c4e; --info-bg:#eef1de;
+    --navy:#22223b; --slate:#4a4e69; --mauve:#9a8c98; --rose:#c9ada7; --paper:#f2e9e4;
+    --bg:#f2e9e4; --card:#fffdfc; --ink:#22223b; --ink-soft:#4a4e69; --mut:#8d8490;
+    --line:#e6dbd4; --line-strong:#d5c4bc;
+    --green:#547a4b; --green-bg:#e9efe3;
+    --red:#a8453a; --red-bg:#f5e3df;
+    --amber:#8a6d1f; --amber-bg:#f2ecdb;
+    --info:#4a4e69; --info-bg:#e9e8f0;
     --disp:'Space Grotesk',Inter,sans-serif; --body:'Inter',-apple-system,'Segoe UI',Roboto,sans-serif;
   }
   *{box-sizing:border-box; margin:0; padding:0; font-family:var(--body);}
   body{background:var(--bg); color:var(--ink); min-height:100vh;}
   button{font:inherit; cursor:pointer;}
   input,select,textarea{font:inherit;}
-  ::selection{background:var(--sage);}
+  ::selection{background:var(--rose);}
 
-  /* ---------- login ---------- */
-  .login-wrap{max-width:600px; margin:0 auto; padding:64px 20px 40px; text-align:center;}
-  .login-wrap::before{content:''; display:block; width:60px; height:60px; margin:0 auto 18px; border-radius:18px;
-    background:var(--tan);
-    -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M22 12h-4l-3 9L9 3l-3 9H2'/%3E%3C/svg%3E") center/58% no-repeat;
-    mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M22 12h-4l-3 9L9 3l-3 9H2'/%3E%3C/svg%3E") center/58% no-repeat;}
-  .login-wrap h1{font-family:var(--disp); font-size:42px; letter-spacing:-1px; color:var(--ink);}
-  .login-wrap .sub{color:var(--ink-soft); margin:8px 0 34px; font-size:15px;}
+  /* ---------- landing ---------- */
+  .land{min-height:100vh; display:flex; flex-direction:column; position:relative; overflow:hidden;}
+  .land::before{content:''; position:absolute; inset:0; pointer-events:none;
+    background:radial-gradient(700px 340px at 18% 8%, rgba(201,173,167,.4), transparent 70%),
+               radial-gradient(640px 320px at 85% 20%, rgba(154,140,152,.28), transparent 70%);}
+  .land-hero{flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center; padding:64px 20px 30px; position:relative;}
+  .land-strip{display:flex; gap:8px; margin-bottom:30px;}
+  .land-strip span{width:26px; height:26px; border-radius:50%; border:2px solid #fff; box-shadow:0 2px 8px rgba(34,34,59,.15);
+    animation:fadeUp .6s cubic-bezier(.2,.7,.3,1) both;}
+  .land-strip span:nth-child(2){animation-delay:.06s;} .land-strip span:nth-child(3){animation-delay:.12s;}
+  .land-strip span:nth-child(4){animation-delay:.18s;} .land-strip span:nth-child(5){animation-delay:.24s;}
+  .land-badge{display:inline-flex; align-items:center; gap:8px; background:var(--card); border:1px solid var(--line);
+    border-radius:999px; padding:6px 16px; font-size:12.5px; color:var(--ink-soft); margin-bottom:22px; letter-spacing:.4px;
+    animation:fadeUp .5s .1s cubic-bezier(.2,.7,.3,1) both;}
+  .land-badge::before{content:''; width:8px; height:8px; border-radius:50%; background:var(--green); animation:pulseDot 2.6s ease-in-out infinite;}
+  .land h1{font-family:var(--disp); font-size:60px; letter-spacing:-2px; color:var(--navy); line-height:1.05;
+    animation:fadeUp .5s .18s cubic-bezier(.2,.7,.3,1) both;}
+  .land .tag{max-width:560px; color:var(--ink-soft); font-size:16.5px; line-height:1.6; margin:18px 0 10px;
+    animation:fadeUp .5s .26s cubic-bezier(.2,.7,.3,1) both;}
+  .land-pulse{width:min(420px,80vw); margin:16px 0 26px; animation:fadeUp .5s .3s cubic-bezier(.2,.7,.3,1) both;}
+  .land-pulse path{stroke:var(--slate); stroke-width:2.4; fill:none; stroke-linecap:round; stroke-linejoin:round;
+    stroke-dasharray:520; stroke-dashoffset:520; animation:draw 2.4s .5s ease forwards;}
+  @keyframes draw{to{stroke-dashoffset:0;}}
+  .land-cta{display:flex; gap:12px; flex-wrap:wrap; justify-content:center; animation:fadeUp .5s .36s cubic-bezier(.2,.7,.3,1) both;}
+  .land-cards{display:grid; grid-template-columns:repeat(3,1fr); gap:14px; max-width:940px; margin:0 auto;
+    padding:10px 20px 56px; position:relative;}
+  .land-card{background:var(--card); border:1px solid var(--line); border-radius:18px; padding:22px; text-align:left;
+    box-shadow:0 2px 10px rgba(34,34,59,.05); transition:.18s; animation:fadeUp .5s .44s cubic-bezier(.2,.7,.3,1) both;}
+  .land-card:nth-child(2){animation-delay:.5s;} .land-card:nth-child(3){animation-delay:.56s;}
+  .land-card:hover{transform:translateY(-3px); box-shadow:0 10px 26px rgba(34,34,59,.1); border-color:var(--rose);}
+  .land-card .ic{font-size:22px; width:46px; height:46px; display:flex; align-items:center; justify-content:center;
+    border-radius:13px; background:var(--info-bg); margin-bottom:12px;}
+  .land-card b{display:block; font-family:var(--disp); font-size:15.5px; margin-bottom:6px; color:var(--navy);}
+  .land-card span{font-size:13.5px; color:var(--ink-soft); line-height:1.55;}
+  .land-foot{position:relative; text-align:center; padding:0 20px 28px; color:var(--mut); font-size:12.5px;}
+  .land-foot a{color:var(--slate);}
+
+  /* ---------- entry (role + name) ---------- */
+  .entry-wrap{max-width:620px; margin:0 auto; padding:54px 20px 40px;}
+  .entry-wrap h1{font-family:var(--disp); font-size:32px; letter-spacing:-.8px; color:var(--navy); text-align:center;}
+  .entry-wrap .sub{color:var(--ink-soft); margin:8px 0 30px; font-size:14.5px; text-align:center; line-height:1.55;}
   .role-card{display:flex; align-items:center; gap:16px; width:100%; text-align:left;
-    background:var(--card); border:1px solid var(--line); border-radius:16px; padding:18px 20px; margin-bottom:12px;
-    color:var(--ink); transition:.15s; box-shadow:0 1px 3px rgba(90,80,50,.06);}
-  .role-card:hover{border-color:var(--tan); box-shadow:0 4px 16px rgba(90,80,50,.12); transform:translateY(-1px);}
-  .role-card .ic{font-size:22px; width:50px; height:50px; display:flex; align-items:center; justify-content:center;
-    border-radius:13px; background:var(--sage-lt); border:1px solid var(--line); flex-shrink:0;}
-  .role-card b{display:block; font-size:16px; font-family:var(--disp); letter-spacing:.2px;}
+    background:var(--card); border:1.5px solid var(--line); border-radius:16px; padding:16px 20px; margin-bottom:12px;
+    color:var(--ink); transition:.15s; box-shadow:0 1px 3px rgba(34,34,59,.05);}
+  .role-card:hover{border-color:var(--mauve); transform:translateY(-1px); box-shadow:0 5px 16px rgba(34,34,59,.1);}
+  .role-card.sel{border-color:var(--navy); box-shadow:0 0 0 3px rgba(34,34,59,.12);}
+  .role-card .ic{font-size:21px; width:48px; height:48px; display:flex; align-items:center; justify-content:center;
+    border-radius:13px; background:var(--info-bg); flex-shrink:0; transition:.18s;}
+  .role-card.sel .ic{background:var(--navy);}
+  .role-card b{display:block; font-size:15.5px; font-family:var(--disp);}
   .role-card span{color:var(--mut); font-size:13px;}
+  .name-card{background:var(--card); border:1px solid var(--line); border-radius:16px; padding:18px 20px; margin-top:6px;
+    animation:fadeUp .3s cubic-bezier(.2,.7,.3,1) both;}
+  .name-note{font-size:12.5px; color:var(--mut); margin-top:10px; line-height:1.5;}
+  .entry-back{display:block; margin:22px auto 0; background:none; border:none; color:var(--slate); font-size:13.5px; font-weight:500;}
+  .entry-back:hover{text-decoration:underline;}
 
-  /* ---------- shell ---------- */
-  header{position:sticky; top:0; z-index:20; padding:12px 18px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;
-    background:var(--sage); border-bottom:1px solid var(--line-strong);}
-  header .brand{font-family:var(--disp); font-weight:700; font-size:19px; letter-spacing:-.3px; color:#39402e;}
-  header .brand::before{content:''; display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:8px;
-    background:var(--green); vertical-align:2px;}
-  header .role-chip{background:rgba(255,255,255,.5); border:1px solid var(--line-strong); border-radius:999px; padding:4px 14px; font-size:13px; color:#4a5240;}
-  header button.switch{margin-left:auto; background:transparent; color:#4a5240; border:1px solid #b3bc93;
-    border-radius:999px; padding:6px 14px; font-size:13px; transition:.15s;}
-  header button.switch:hover{background:rgba(255,255,255,.45);}
-  nav.tabs{position:sticky; top:57px; z-index:19; display:flex; overflow-x:auto; gap:4px; padding:10px 18px 0;
-    background:var(--bg); border-bottom:1px solid var(--line);}
-  nav.tabs button{flex:1; min-width:110px; background:none; border:none; padding:10px 12px; font-size:13.5px; font-weight:500;
-    color:var(--mut); border-bottom:2px solid transparent; white-space:nowrap; transition:.15s;}
-  nav.tabs button:hover{color:var(--ink);}
-  nav.tabs button.on{color:var(--acc-deep); font-weight:600; border-bottom-color:var(--tan);}
-  main{max-width:980px; margin:0 auto; padding:22px 18px 90px;}
+  /* ---------- app layout ---------- */
+  .layout{display:flex; min-height:100vh;}
+  aside.side{width:232px; background:var(--navy); color:var(--paper); position:fixed; top:0; bottom:0; left:0;
+    display:flex; flex-direction:column; padding:22px 14px 18px; z-index:30;}
+  .side .brand{font-family:var(--disp); font-weight:700; font-size:20px; letter-spacing:-.4px; color:var(--paper); padding:2px 10px;}
+  .side .brand::before{content:''; display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:9px;
+    background:var(--rose); animation:pulseDot 2.6s ease-in-out infinite; vertical-align:2px;}
+  .side nav{display:flex; flex-direction:column; gap:3px; margin-top:28px;}
+  .side nav button{display:flex; align-items:center; gap:12px; background:none; border:none; color:#c7bccb;
+    padding:11px 14px; border-radius:12px; font-size:14px; text-align:left; transition:.15s; width:100%;}
+  .side nav button .ic{font-size:16px; width:22px; text-align:center;}
+  .side nav button:hover{background:rgba(242,233,228,.08); color:#fff;}
+  .side nav button.on{background:var(--slate); color:#fff; font-weight:600;}
+  .side .me{margin-top:auto; background:rgba(242,233,228,.07); border:1px solid rgba(242,233,228,.12);
+    border-radius:14px; padding:12px; display:flex; align-items:center; gap:10px;}
+  .side .me .avatar{width:36px; height:36px; border-radius:50%; background:var(--rose); color:var(--navy);
+    display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px; flex-shrink:0;}
+  .side .me b{display:block; font-size:13px; color:#fff; line-height:1.25;}
+  .side .me span{font-size:11.5px; color:#b6a9b8;}
+  .side .me button{margin-left:auto; background:none; border:1px solid rgba(242,233,228,.25); color:#d8cdd8;
+    border-radius:999px; padding:5px 10px; font-size:11px; transition:.15s; flex-shrink:0;}
+  .side .me button:hover{background:rgba(242,233,228,.12); color:#fff;}
+  header.top{display:none;}
+  .main-col{flex:1; margin-left:232px; min-width:0;}
+  main{max-width:920px; margin:0 auto; padding:26px 22px 70px;}
+  .bottomnav{display:none;}
+
+  /* ---------- guide ---------- */
+  .guide-fab{position:fixed; right:20px; bottom:20px; z-index:40; width:52px; height:52px; border-radius:50%;
+    background:var(--navy); color:var(--paper); border:none; font-size:20px; font-weight:700; font-family:var(--disp);
+    box-shadow:0 8px 24px rgba(34,34,59,.3); transition:.18s;}
+  .guide-fab:hover{transform:scale(1.07); background:var(--slate);}
+  aside.guide{position:fixed; top:0; right:0; bottom:0; width:350px; max-width:94vw; background:var(--card);
+    border-left:1px solid var(--line); z-index:45; transform:translateX(105%);
+    transition:transform .3s cubic-bezier(.2,.7,.3,1); display:flex; flex-direction:column;
+    box-shadow:-14px 0 44px rgba(34,34,59,.14);}
+  aside.guide.open{transform:none;}
+  .g-head{display:flex; align-items:flex-start; gap:10px; padding:18px 18px 14px; border-bottom:1px solid var(--line);
+    background:var(--info-bg);}
+  .g-head b{display:block; font-family:var(--disp); font-size:15.5px; color:var(--navy);}
+  .g-head span{font-size:11.5px; color:var(--ink-soft); line-height:1.45; display:block; margin-top:2px;}
+  .g-head button{margin-left:auto; background:none; border:none; font-size:16px; color:var(--mut); padding:2px 6px;}
+  .g-head button:hover{color:var(--navy);}
+  .g-body{overflow-y:auto; padding:16px 18px 30px;}
+  .g-sec{font-size:11px; text-transform:uppercase; letter-spacing:1.2px; color:var(--mauve); font-weight:700; margin:14px 0 8px;}
+  .g-sec:first-child{margin-top:0;}
+  .tip{background:var(--paper); border:1px solid var(--line); border-radius:12px; padding:10px 13px;
+    font-size:13px; color:var(--ink-soft); line-height:1.55; margin-bottom:8px;}
+  .tip b{color:var(--navy);}
+  .chip{display:block; width:100%; text-align:left; background:var(--card); border:1px solid var(--line);
+    border-radius:12px; padding:10px 13px; font-size:13px; color:var(--ink); margin-bottom:6px; transition:.15s;}
+  .chip:hover{border-color:var(--mauve);}
+  .chip.on{border-color:var(--navy); background:var(--info-bg); font-weight:600;}
+  .answer{background:var(--paper); border:1px solid var(--line); border-left:3px solid var(--slate);
+    border-radius:10px; padding:10px 13px; font-size:13px; color:var(--ink-soft); line-height:1.55; margin:-2px 0 8px;
+    animation:fadeUp .25s ease both;}
 
   /* ---------- shared ---------- */
   .grid{display:grid; gap:14px;}
   .stats{grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); margin-bottom:20px;}
-  .stat{background:var(--card); border:1px solid var(--line); border-radius:16px; padding:16px 18px; box-shadow:0 1px 3px rgba(90,80,50,.06);}
-  .stat .n{font-size:27px; font-weight:700; font-family:var(--disp); letter-spacing:-.5px;}
+  .stat{background:var(--card); border:1px solid var(--line); border-radius:16px; padding:16px 18px; box-shadow:0 1px 4px rgba(34,34,59,.05);}
+  .stat .n{font-size:27px; font-weight:700; font-family:var(--disp); letter-spacing:-.5px; color:var(--navy);}
   .stat .l{font-size:12px; color:var(--mut); margin-top:3px; line-height:1.45;}
-  .card{background:var(--card); border:1px solid var(--line); border-radius:16px; padding:18px 20px; margin-bottom:16px; box-shadow:0 1px 3px rgba(90,80,50,.06);}
-  .card h3{font-size:15px; margin-bottom:12px; font-family:var(--disp); letter-spacing:.2px;}
+  .card{background:var(--card); border:1px solid var(--line); border-radius:16px; padding:18px 20px; margin-bottom:16px; box-shadow:0 1px 4px rgba(34,34,59,.05);}
+  .card h3{font-size:15px; margin-bottom:12px; font-family:var(--disp); letter-spacing:.2px; color:var(--navy);}
   .pill{display:inline-block; border-radius:999px; padding:2.5px 11px; font-size:12px; font-weight:600;}
-  .pill.g{background:var(--green-bg); color:var(--green); border:1px solid #cbdcc0;}
-  .pill.r{background:var(--red-bg); color:var(--red); border:1px solid #ecc9c0;}
-  .pill.a{background:var(--amber-bg); color:var(--amber); border:1px solid #ecd9ae;}
-  .pill.b{background:var(--info-bg); color:var(--info); border:1px solid #d9dfc2;}
-  .pill.grey{background:#f0ecdb; color:var(--mut); border:1px solid var(--line);}
-  .banner{border-radius:12px; padding:12px 16px; font-size:14px; margin-bottom:14px;}
-  .banner.r{background:var(--red-bg); color:#7c3327; border:1px solid #ecc9c0;}
-  .banner.a{background:var(--amber-bg); color:#6e4b08; border:1px solid #ecd9ae;}
-  .banner.b{background:var(--info-bg); color:#4c5a35; border:1px solid #d9dfc2;}
-  .bar{height:7px; background:#eee8d2; border-radius:99px; overflow:hidden; margin-top:10px;}
-  .bar>div{height:100%; background:var(--sage); border-radius:99px; transition:width .3s;}
+  .pill.g{background:var(--green-bg); color:var(--green); border:1px solid #cddcc4;}
+  .pill.r{background:var(--red-bg); color:var(--red); border:1px solid #e8c6bf;}
+  .pill.a{background:var(--amber-bg); color:var(--amber); border:1px solid #e4d8b4;}
+  .pill.b{background:var(--info-bg); color:var(--info); border:1px solid #cfcdE0;}
+  .pill.grey{background:#efe9e4; color:var(--mut); border:1px solid var(--line);}
+  .banner{border-radius:12px; padding:12px 16px; font-size:14px; margin-bottom:14px; line-height:1.5;}
+  .banner.r{background:var(--red-bg); color:#7c3327; border:1px solid #e8c6bf;}
+  .banner.a{background:var(--amber-bg); color:#6b5416; border:1px solid #e4d8b4;}
+  .banner.b{background:var(--info-bg); color:var(--ink-soft); border:1px solid #cfcde0;}
+  .bar{height:7px; background:#ede4de; border-radius:99px; overflow:hidden; margin-top:10px;}
+  .bar>div{height:100%; background:var(--mauve); border-radius:99px;}
   .bar.g>div{background:var(--green);}
   .bar.r>div{background:var(--red);}
 
   .scroll-x{overflow-x:auto; border-radius:16px;}
   table.list{width:100%; border-collapse:collapse; background:var(--card); border:1px solid var(--line); border-radius:16px; overflow:hidden;}
   table.list th,table.list td{padding:11px 14px; text-align:left; font-size:14px; border-bottom:1px solid var(--line);}
-  table.list th{background:var(--sage-lt); font-size:11px; text-transform:uppercase; letter-spacing:1px; color:#5d664a; font-weight:600;}
+  table.list th{background:var(--paper); font-size:11px; text-transform:uppercase; letter-spacing:1px; color:var(--ink-soft); font-weight:600;}
   table.list tr:last-child td{border-bottom:none;}
   table.list tr.clickable{cursor:pointer; transition:background .12s;}
-  table.list tr.clickable:hover{background:#fbf7e6;}
+  table.list tr.clickable:hover{background:#faf4f0;}
 
   .btn{display:inline-block; border:1px solid transparent; border-radius:999px; padding:10px 20px; font-size:14px; font-weight:600;
-    background:var(--tan); color:#3d2b17; transition:.15s; box-shadow:0 1px 3px rgba(90,80,50,.15);}
-  .btn:hover{background:#c8955f; transform:translateY(-1px); box-shadow:0 4px 12px rgba(90,80,50,.2);}
+    background:var(--navy); color:var(--paper); transition:.15s; box-shadow:0 2px 8px rgba(34,34,59,.18);}
+  .btn:hover{background:var(--slate); transform:translateY(-1px); box-shadow:0 5px 14px rgba(34,34,59,.24);}
   .btn.g{background:var(--green); color:#fff;}
-  .btn.g:hover{background:#426838;}
+  .btn.g:hover{background:#436139;}
   .btn.r{background:var(--red); color:#fff;}
-  .btn.r:hover{background:#934033;}
+  .btn.r:hover{background:#8a392f;}
   .btn.ghost{background:var(--card); color:var(--ink); border:1px solid var(--line-strong); box-shadow:none;}
   .btn.sm{padding:6px 14px; font-size:13px;}
-  .btn:disabled{background:#e8e2cb; color:var(--mut); box-shadow:none; cursor:not-allowed; transform:none;}
+  .btn:disabled{background:#ddd2cb; color:var(--mut); box-shadow:none; cursor:not-allowed; transform:none;}
   .btn-row{display:flex; gap:10px; flex-wrap:wrap; margin-top:16px;}
 
   label.f{display:block; font-size:12.5px; color:var(--ink-soft); margin:14px 0 6px; font-weight:500; letter-spacing:.3px;}
   input.f,select.f,textarea.f{width:100%; border:1px solid var(--line-strong); border-radius:12px; padding:11px 14px; font-size:15px;
-    background:#fffdf2; color:var(--ink); transition:.15s;}
-  input.f::placeholder,textarea.f::placeholder{color:#b0ab90;}
-  input.f:focus,select.f:focus,textarea.f:focus{outline:none; border-color:var(--tan); box-shadow:0 0 0 3px rgba(212,163,115,.25);}
+    background:#fffdfb; color:var(--ink); transition:.15s;}
+  input.f::placeholder,textarea.f::placeholder{color:#b3a69e;}
+  input.f:focus,select.f:focus,textarea.f:focus{outline:none; border-color:var(--slate); box-shadow:0 0 0 3px rgba(74,78,105,.18);}
   .err{color:var(--red); font-size:13px; margin-top:8px;}
-  .hint{font-size:13px; color:#5d664a; margin-bottom:14px; line-height:1.55; padding:11px 15px; background:var(--sage-lt); border:1px solid #d9dfc2; border-radius:12px;}
-  .hint b{color:#39402e; font-weight:600;}
+  .hint{font-size:13px; color:var(--ink-soft); margin-bottom:14px; line-height:1.55; padding:11px 15px; background:var(--info-bg); border:1px solid #d6d3e6; border-radius:12px;}
+  .hint b{color:var(--navy); font-weight:600;}
 
-  /* patient detail */
   .detail-head{display:flex; justify-content:space-between; align-items:flex-start; gap:10px; flex-wrap:wrap;}
   .kv{display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:10px; margin:14px 0;}
-  .kv div{background:#fbf7e6; border:1px solid var(--line); border-radius:12px; padding:10px 12px; font-size:12px; color:var(--mut);}
+  .kv div{background:var(--paper); border:1px solid var(--line); border-radius:12px; padding:10px 12px; font-size:12px; color:var(--mut);}
   .kv b{display:block; font-size:14.5px; margin-top:3px; color:var(--ink); font-weight:600;}
   .chart{display:flex; align-items:flex-end; gap:8px; height:120px; padding:10px 4px 0; border-bottom:2px solid var(--line-strong);}
   .chart .col{flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%;}
-  .chart .cb{width:70%; max-width:36px; border-radius:6px 6px 0 0; min-height:3px; background:var(--sage); border:1px solid #b3bc93; border-bottom:none;}
-  .chart .cb.fever{background:var(--red); border-color:#934033;}
+  .chart .cb{width:70%; max-width:36px; border-radius:6px 6px 0 0; min-height:3px; background:var(--rose); border:1px solid #b89a93; border-bottom:none;}
+  .chart .cb.fever{background:var(--red); border-color:#8a392f;}
   .chart .cl{font-size:10px; color:var(--mut); margin-top:5px;}
   .chart .cv{font-size:10.5px; margin-bottom:3px; color:var(--ink-soft); font-weight:600;}
-  .log-line{font-size:13.5px; padding:8px 0; border-bottom:1px dashed var(--line); color:#4a5240;}
+  .log-line{font-size:13.5px; padding:8px 0; border-bottom:1px dashed var(--line); color:var(--ink-soft);}
   .log-line:last-child{border-bottom:none;}
 
   .filter-row{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px;}
   .filter-row button{border:1px solid var(--line-strong); background:var(--card); border-radius:999px; padding:7px 15px; font-size:13px; color:var(--ink-soft); transition:.15s;}
-  .filter-row button:hover{border-color:var(--tan);}
-  .filter-row button.on{background:var(--sage); color:#39402e; border-color:#b3bc93; font-weight:600;}
+  .filter-row button:hover{border-color:var(--mauve);}
+  .filter-row button.on{background:var(--navy); color:var(--paper); border-color:var(--navy); font-weight:600;}
 
-  .toast{position:fixed; left:50%; bottom:26px; transform:translateX(-50%); background:#3a4030; color:#fdfaf0;
-    padding:13px 22px; border-radius:999px; font-size:14px; z-index:50;
-    box-shadow:0 10px 30px rgba(60,55,35,.35); max-width:90vw;}
-  .back{background:none; border:none; color:var(--acc-deep); font-size:14px; margin-bottom:14px; padding:0; font-weight:500;}
+  .toast{position:fixed; left:50%; bottom:26px; transform:translateX(-50%); background:var(--navy); color:var(--paper);
+    padding:13px 22px; border-radius:999px; font-size:14px; z-index:60;
+    box-shadow:0 10px 30px rgba(34,34,59,.35); max-width:90vw;}
+  .back{background:none; border:none; color:var(--slate); font-size:14px; margin-bottom:14px; padding:0; font-weight:500;}
   .back:hover{text-decoration:underline;}
-  .foot{max-width:960px; margin:0 auto; padding:0 16px 34px; color:var(--mut); font-size:12px; text-align:center;}
+  .foot{max-width:920px; margin:0 auto; padding:0 22px 30px; color:var(--mut); font-size:12px; text-align:center;}
   h1,h2,h3{font-family:var(--disp);}
-  
+
   /* ---------- motion & polish ---------- */
   @keyframes fadeUp{from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:none;}}
   @keyframes grow{from{transform:scaleY(0);} to{transform:scaleY(1);}}
@@ -148,7 +226,7 @@
   .stat:nth-child(2){animation-delay:.05s;} .stat:nth-child(3){animation-delay:.1s;}
   .stat:nth-child(4){animation-delay:.15s;} .stat:nth-child(5){animation-delay:.2s;}
   .stat{transition:.18s;}
-  .stat:hover{transform:translateY(-2px); box-shadow:0 6px 18px rgba(90,80,50,.12); border-color:var(--line-strong);}
+  .stat:hover{transform:translateY(-2px); box-shadow:0 7px 20px rgba(34,34,59,.1); border-color:var(--line-strong);}
   .chart .cb{transform-origin:bottom; animation:grow .5s cubic-bezier(.2,.7,.3,1) both;}
   .chart .col:nth-child(2) .cb{animation-delay:.04s;} .chart .col:nth-child(3) .cb{animation-delay:.08s;}
   .chart .col:nth-child(4) .cb{animation-delay:.12s;} .chart .col:nth-child(5) .cb{animation-delay:.16s;}
@@ -156,33 +234,46 @@
   .toast{animation:toastIn .3s cubic-bezier(.2,.7,.3,1);}
   .btn:active{transform:scale(.96);}
   .btn{position:relative; overflow:hidden;}
-  .btn::after{content:''; position:absolute; inset:0; border-radius:inherit; background:rgba(255,255,255,.28);
+  .btn::after{content:''; position:absolute; inset:0; border-radius:inherit; background:rgba(255,255,255,.16);
     opacity:0; transition:opacity .25s;}
   .btn:hover::after{opacity:1;}
   .btn:disabled::after{display:none;}
-  header .brand::before{animation:pulseDot 2.6s ease-in-out infinite;}
-  table.list tr{animation:fadeUp .35s ease both;}
-  table.list tr.clickable:active{background:var(--tan-cream);}
-  .role-card .ic{transition:.18s;}
-  .role-card:hover .ic{background:var(--sage); transform:scale(1.06);}
+  table.list tr.clickable:active{background:var(--paper);}
   .kv div{transition:.15s;}
-  .kv div:hover{border-color:var(--tan);}
+  .kv div:hover{border-color:var(--mauve);}
   .filter-row button:active{transform:scale(.95);}
   .bar>div{transition:width .6s cubic-bezier(.2,.7,.3,1);}
   .scroll-x::-webkit-scrollbar{height:8px;}
   .scroll-x::-webkit-scrollbar-thumb{background:var(--line-strong); border-radius:99px;}
-  .scroll-x::-webkit-scrollbar-thumb:hover{background:var(--tan);}
-  :focus-visible{outline:2px solid var(--tan); outline-offset:2px; border-radius:6px;}
+  .scroll-x::-webkit-scrollbar-thumb:hover{background:var(--mauve);}
+  :focus-visible{outline:2px solid var(--slate); outline-offset:2px; border-radius:6px;}
   @media (prefers-reduced-motion: reduce){
     *, *::before, *::after{animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important;}
   }
 
-  @media (max-width:640px){
-    .login-wrap{padding:44px 16px 32px;}
-    .login-wrap h1{font-size:33px;}
-    nav.tabs{top:55px;}
-    nav.tabs button{flex:0 0 auto; min-width:0; padding:10px 14px;}
-    main{padding:16px 14px 80px;}
+  @media (max-width:860px){
+    aside.side{display:none;}
+    .main-col{margin-left:0;}
+    header.top{display:flex; align-items:center; gap:10px; padding:12px 16px; position:sticky; top:0; z-index:25;
+      background:var(--card); border-bottom:1px solid var(--line);}
+    header.top .brand{font-family:var(--disp); font-weight:700; font-size:18px; color:var(--navy);}
+    header.top .brand::before{content:''; display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:7px;
+      background:var(--rose); vertical-align:1px;}
+    header.top .gbtn, header.top .switch{background:var(--paper); border:1px solid var(--line-strong); color:var(--ink-soft);
+      border-radius:999px; padding:6px 13px; font-size:12.5px; font-weight:500;}
+    header.top .sp{flex:1;}
+    main{padding:16px 14px 120px;}
+    .bottomnav{display:flex; position:fixed; bottom:0; left:0; right:0; background:var(--card);
+      border-top:1px solid var(--line); z-index:35; padding:5px 2px calc(5px + env(safe-area-inset-bottom));
+      box-shadow:0 -6px 20px rgba(34,34,59,.06);}
+    .bottomnav button{flex:1; background:none; border:none; display:flex; flex-direction:column; align-items:center;
+      gap:3px; font-size:10px; color:var(--mut); padding:6px 2px; border-radius:10px; transition:.15s;}
+    .bottomnav button .ic{font-size:19px; transition:transform .18s;}
+    .bottomnav button.on{color:var(--navy); font-weight:700;}
+    .bottomnav button.on .ic{transform:translateY(-1px) scale(1.12);}
+    .guide-fab{bottom:78px; right:14px; width:46px; height:46px; font-size:18px;}
+    .land h1{font-size:42px;}
+    .land-cards{grid-template-columns:1fr; padding-bottom:40px;}
     table.list th:nth-child(4),table.list td:nth-child(4){display:none;}
   }
 </style>
@@ -317,8 +408,22 @@ function mortality(){
 
 /* ---------- session ---------- */
 let session = JSON.parse(sessionStorage.getItem('wardflow_role')||'null');
-function setRole(r){session={role:r, name: r==='nurse'?NURSES[0]: r==='doctor'?DOCTORS[0]:'Admin desk'}; sessionStorage.setItem('wardflow_role',JSON.stringify(session)); render();}
-function logout(){sessionStorage.removeItem('wardflow_role'); session=null; render();}
+let pendingRole=null, entryScreen=false;
+const DEFAULT_NAMES={nurse:NURSES[0], doctor:DOCTORS[0], admin:'Admin desk'};
+const ROLE_META={
+  nurse:{icon:'\ud83c\udf21\ufe0f',label:'Nurse',desc:'Record daily patient temperatures'},
+  doctor:{icon:'\ud83e\ude7a',label:'Doctor',desc:'Review readings, treat patients, flag discharges'},
+  admin:{icon:'\ud83d\uddc2\ufe0f',label:'Admin staff',desc:'Discharges, admissions and bed management'}};
+function setRole(r){session={role:r, name:DEFAULT_NAMES[r]}; sessionStorage.setItem('wardflow_role',JSON.stringify(session)); render();}
+function pickRole(r){pendingRole=r; render();}
+function enterRole(){
+  const inp=document.getElementById('entry-name');
+  const nm=(inp&&inp.value.trim())||DEFAULT_NAMES[pendingRole];
+  session={role:pendingRole, name:nm}; pendingRole=null;
+  sessionStorage.setItem('wardflow_role',JSON.stringify(session)); render();
+}
+function logout(){sessionStorage.removeItem('wardflow_role'); session=null; entryScreen=false; pendingRole=null; render();}
+function showEntry(){entryScreen=true; render(); window.scrollTo(0,0);}
 
 /* ---------- small dom ---------- */
 const app=document.getElementById('app');
@@ -332,34 +437,128 @@ function toast(msg){
 }
 
 /* ================= views ================= */
-function viewLogin(){
+function viewLanding(){
   app.innerHTML=`
-  <div class="login-wrap">
-    <h1>WardFlow</h1>
-    <p class="sub">Isolation &amp; treatment ward - daily operations console. Choose your role to sign in.</p>
-    <button class="role-card" onclick="setRole('nurse')"><span class="ic">🌡️</span><span><b>Nurse</b><span>Record daily patient temperatures</span></span></button>
-    <button class="role-card" onclick="setRole('doctor')"><span class="ic">🩺</span><span><b>Doctor</b><span>Review readings, treat patients, flag discharges</span></span></button>
-    <button class="role-card" onclick="setRole('admin')"><span class="ic">🗂️</span><span><b>Admin staff</b><span>Discharges, admissions and bed management</span></span></button>
-  </div>
-  <div class="foot">Demo prototype - all patient records are synthetic sample data stored only in this browser.</div>`;
+  <div class="land">
+    <div class="land-hero">
+      <div class="land-strip"><span style="background:#22223b"></span><span style="background:#4a4e69"></span><span style="background:#9a8c98"></span><span style="background:#c9ada7"></span><span style="background:#f2e9e4"></span></div>
+      <div class="land-badge">74-bed isolation &amp; treatment ward console</div>
+      <h1>WardFlow</h1>
+      <p class="tag">One clear screen for the whole ward day: nurses log temperatures, doctors review and treat, admin frees beds - with the 3-day fever-free discharge rule enforced at every step.</p>
+      <svg class="land-pulse" viewBox="0 0 420 60" aria-hidden="true"><path d="M0 34 H120 L138 34 150 12 166 52 182 22 194 34 H280 L296 34 306 20 318 44 330 30 340 34 H420"/></svg>
+      <div class="land-cta">
+        <button class="btn" style="padding:13px 30px;font-size:15px" onclick="showEntry()">Enter the console →</button>
+      </div>
+    </div>
+    <div class="land-cards">
+      <div class="land-card"><div class="ic">🌡️</div><b>Daily temperature rounds</b><span>Nurses record one reading per patient per day. Corrections keep the original in history - nothing is silently overwritten.</span></div>
+      <div class="land-card"><div class="ic">🩺</div><b>Doctor review queue</b><span>Patients with fresh readings surface first. Visits, treatments and notes are logged against each patient.</span></div>
+      <div class="land-card"><div class="ic">📤</div><b>Safe discharge flow</b><span>Only 3 full fever-free days unlock discharge. Admin re-checks the rule before any bed is freed.</span></div>
+    </div>
+    <div class="land-foot">Demo prototype - all patient records are synthetic sample data stored only in this browser. <a href="https://github.com/shreejesh12/wardflow" target="_blank" rel="noopener">View source on GitHub</a></div>
+  </div>`;
 }
 
-function shell(content, tab){
-  const roleIcon={nurse:'🌡️',doctor:'🩺',admin:'🗂️'}[session.role];
-  const tabs = session.role==='nurse'
-    ? [['dash','Today\'s board'],['record','Record temperature'],['patients','All patients']]
-    : session.role==='doctor'
-    ? [['dash','Today\'s board'],['review','Review queue'],['patients','All patients']]
-    : [['dash','Today\'s board'],['discharge','Discharge queue'],['admit','Admit patient'],['quality','Quality'],['patients','All patients']];
+function viewEntry(){
+  const cards=['nurse','doctor','admin'].map(r=>`
+    <button class="role-card ${pendingRole===r?'sel':''}" onclick="pickRole('${r}')"><span class="ic">${ROLE_META[r].icon}</span><span><b>${ROLE_META[r].label}</b><span>${ROLE_META[r].desc}</span></span></button>`).join('');
   app.innerHTML=`
-  <header>
-    <span class="brand">WardFlow</span>
-    <span class="role-chip">${roleIcon} ${esc(session.name)}</span>
-    <button class="switch" onclick="logout()">Switch role</button>
-  </header>
-  <nav class="tabs">${tabs.map(([k,l])=>`<button class="${tab===k?'on':''}" onclick="go('${k}')">${l}</button>`).join('')}</nav>
-  <main>${content}</main>
+  <div class="entry-wrap">
+    <h1>Who is signing in?</h1>
+    <p class="sub">Pick your role, then tell us your name so the records you create are labelled correctly.</p>
+    ${cards}
+    ${pendingRole?`<div class="name-card">
+      <label class="f" style="margin-top:0">Your name</label>
+      <input class="f" id="entry-name" placeholder="${esc(DEFAULT_NAMES[pendingRole])}" maxlength="40" autocomplete="off">
+      <div class="name-note">Demo sign-in only: no password and no real authentication - anyone can pick any role. The name is just used to label the records you create.</div>
+      <div class="btn-row"><button class="btn" onclick="enterRole()">Enter as ${ROLE_META[pendingRole].label} →</button></div>
+    </div>`:''}
+    <button class="entry-back" onclick="entryScreen=false;render()">← Back to welcome page</button>
+  </div>
   <div class="foot">Demo prototype - synthetic data only. Not medical advice.</div>`;
+}
+
+const TABS={
+  nurse:[['dash','🏠','Board'],['record','🌡️','Record'],['patients','👤','Patients']],
+  doctor:[['dash','🏠','Board'],['review','🩺','Review'],['patients','👤','Patients']],
+  admin:[['dash','🏠','Board'],['discharge','📤','Discharge'],['admit','➕','Admit'],['quality','📊','Quality'],['patients','👤','Patients']]};
+function shell(content, tab){
+  const tabs=TABS[session.role];
+  const initials=esc(session.name.split(/\s+/).map(w=>w[0]||'').join('').slice(0,2).toUpperCase())||'?';
+  const sideNav=tabs.map(([k,ic,l])=>`<button class="${tab===k?'on':''}" onclick="go('${k}')"><span class="ic">${ic}</span>${l}</button>`).join('');
+  const bottomNav=tabs.map(([k,ic,l])=>`<button class="${tab===k?'on':''}" onclick="go('${k}')"><span class="ic">${ic}</span>${l}</button>`).join('');
+  app.innerHTML=`
+  <div class="layout">
+    <aside class="side">
+      <div class="brand">WardFlow</div>
+      <nav>${sideNav}</nav>
+      <div class="me">
+        <div class="avatar">${initials}</div>
+        <div><b>${esc(session.name)}</b><span>${ROLE_META[session.role].label}</span></div>
+        <button onclick="logout()" title="Sign out and pick another role">Switch</button>
+      </div>
+    </aside>
+    <div class="main-col">
+      <header class="top">
+        <span class="brand">WardFlow</span>
+        <span class="sp"></span>
+        <button class="switch" onclick="logout()">${esc(session.name)} · Switch</button>
+      </header>
+      <main>${content}</main>
+      <div class="foot">Demo prototype - synthetic data only. Not medical advice.</div>
+    </div>
+  </div>
+  <nav class="bottomnav">${bottomNav}</nav>
+  <button class="guide-fab" onclick="toggleGuide()" title="Open the WardFlow guide">?</button>
+  ${guideHtml()}`;
+}
+
+/* ---------- contextual guide ---------- */
+const GUIDE_TIPS={
+  dash:['The <b>stat cards</b> summarise today: beds, readings, visits and mortality. Bars fill as work completes.',
+        '<b>Amber and red banners</b> are warnings that need action - duplicates, visits before readings, or an over-benchmark mortality rate.',
+        'Use the <b>navigation</b> (left on desktop, bottom on phones) to jump to your next task.'],
+  record:['Tap <b>Record</b> next to a patient, enter the temperature, save. One reading per patient per day.',
+          'If a reading already exists, saving again logs a <b>correction</b> - the original stays visible in the history.',
+          'Readings must be between <b>34 and 43°C</b>; anything else is rejected as a likely typo.'],
+  review:['Patients with a <b>fresh reading</b> and no visit yet appear first - work top to bottom.',
+          'Open a patient to <b>log a visit</b> with a treatment and notes.',
+          'When a patient completes <b>3 full fever-free days</b>, the discharge button unlocks on their page.'],
+  discharge:['Only patients a doctor has <b>flagged</b> appear here.',
+             'The app <b>re-checks the 3-day rule</b> before every discharge. If a fever broke the streak, discharge is blocked and the patient returns to the doctor.',
+             'Each discharge frees a bed for the next admission.'],
+  admit:['Admissions need a name, age, gender and a <b>first temperature reading</b>.',
+         'If the ward is at <b>full capacity (74 beds)</b>, admissions stay locked until a discharge frees a bed.'],
+  quality:['Compares the facility\'s <b>mortality rate</b> against the expected 15% benchmark.',
+           'Over the benchmark? Escalate to the head doctor and review treatment protocols.'],
+  patients:['Every admitted patient, sorted by room. <b>Tap a row</b> to open the full record.',
+            'Pills show today\'s status: temperature, doctor visit, discharge eligibility.'],
+  patient:['Everything about one patient: today\'s reading, the <b>7-day temperature trend</b>, visits and history.',
+           'Available actions depend on your role - nurses record temperatures, doctors log visits and flag discharges.',
+           'A <b>fever today restarts</b> the 3-day fever-free clock immediately.']
+};
+const GUIDE_QA=[
+  ['How does a discharge work?','A doctor flags a patient after 3 full fever-free days, each with a recorded temperature. Admin then re-checks the rule and completes the discharge, which frees the bed. A fever on any day restarts the count.'],
+  ['What counts as a fever?','A reading of 38.0°C or higher. Fevers show as red pills and red bars in the trend chart.'],
+  ['What if a reading was entered wrong?','Save the correct value on the same patient. The app logs it as a correction and keeps the original reading in the history, marked "superseded" - nothing is deleted.'],
+  ['Is this real patient data?','No. Every patient is synthetic sample data generated for this demo, stored only in your browser\'s local storage. Nothing leaves your device.'],
+  ['What is the intended workflow?','Nurse records temperatures each morning → doctor reviews fresh readings and logs visits → doctor flags recovered patients → admin verifies and discharges them, freeing beds for new admissions.']
+];
+let guideOpen=sessionStorage.getItem('wardflow_guide')==='1';
+let guideAnswer=-1;
+function toggleGuide(){guideOpen=!guideOpen; sessionStorage.setItem('wardflow_guide',guideOpen?'1':'0'); render();}
+function askGuide(i){guideAnswer=(guideAnswer===i?-1:i); render();}
+function guideHtml(){
+  const key=view.patientId?'patient':view.tab;
+  const tips=GUIDE_TIPS[key]||GUIDE_TIPS.dash;
+  return `<aside class="guide ${guideOpen?'open':''}">
+    <div class="g-head"><div><b>WardFlow Guide</b><span>Built-in helper - answers come from the app's own rules, not an external AI.</span></div><button onclick="toggleGuide()" title="Close guide">✕</button></div>
+    <div class="g-body">
+      <div class="g-sec">On this screen</div>
+      ${tips.map(t=>`<div class="tip">${t}</div>`).join('')}
+      <div class="g-sec">Common questions</div>
+      ${GUIDE_QA.map((q,i)=>`<button class="chip ${guideAnswer===i?'on':''}" onclick="askGuide(${i})">${q[0]}</button>${guideAnswer===i?`<div class="answer">${q[1]}</div>`:''}`).join('')}
+    </div></aside>`;
 }
 
 let view={tab:'dash', patientId:null, filter:'all'};
@@ -688,6 +887,7 @@ function admit(){
 /* deep link: #nurse | #doctor | #admin optionally with /tab (demo shortcut) */
 (function(){
   const [hr,ht]=location.hash.replace('#','').split('/');
+  if(hr==='entry'){entryScreen=true;}
   if(['nurse','doctor','admin'].includes(hr)){
     session={role:hr, name: hr==='nurse'?NURSES[0]: hr==='doctor'?DOCTORS[0]:'Admin desk'};
     sessionStorage.setItem('wardflow_role',JSON.stringify(session));
@@ -697,7 +897,7 @@ function admit(){
 
 /* ================= render ================= */
 function render(){
-  if(!session){viewLogin();return;}
+  if(!session){ entryScreen?viewEntry():viewLanding(); return; }
   let content, tab=view.tab;
   if(view.patientId){content=viewPatient();}
   else if(tab==='dash'){content=viewDash();}
