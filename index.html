@@ -938,6 +938,1068 @@ function admit(){
   if(name.length<3){err.textContent='Enter the patient\'s full name.';return;}
   if(isNaN(age)||age<0||age>120){err.textContent='Enter a valid age.';return;}
   if(isNaN(temp)||temp<34||temp>43){err.textContent='Enter an admission temperature between 34 and 43°C.';return;}
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WardFlow - Isolation Ward Manager</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#eff1ec; --dark:#373d21; --olive:#707744; --khaki:#bdbd8b; --taupe:#776153;
+    --bg:#eff1ec; --card:#fbfbf7; --ink:#2b3018; --ink-soft:#5c6248; --mut:#8a8d76;
+    --line:#dde0cb; --line-strong:#c9cdb0;
+    --green:#5a6f35; --green-bg:#e7ebd4;
+    --red:#a8453a; --red-bg:#f3e2dd;
+    --amber:#8a6d1f; --amber-bg:#efe8d2;
+    --info:#707744; --info-bg:#e9ebdc;
+    --disp:'Space Grotesk',Inter,sans-serif; --body:'Inter',-apple-system,'Segoe UI',Roboto,sans-serif;
+  }
+  *{box-sizing:border-box; margin:0; padding:0; font-family:var(--body);}
+  body{background:var(--bg); color:var(--ink); min-height:100vh;}
+  button{font:inherit; cursor:pointer;}
+  input,select,textarea{font:inherit;}
+  a.btn{text-decoration:none;}
+  ::selection{background:var(--khaki);}
+
+  /* ---------- landing ---------- */
+  .land{min-height:100vh; display:flex; flex-direction:column; position:relative; overflow:hidden;}
+  .land::before{content:''; position:absolute; inset:0; pointer-events:none;
+    background:radial-gradient(760px 380px at 12% 6%, rgba(189,189,139,.38), transparent 70%),
+               radial-gradient(680px 360px at 88% 18%, rgba(119,97,83,.14), transparent 70%);}
+  .hero{flex:1; display:grid; grid-template-columns:1.05fr .95fr; gap:24px; max-width:1140px; width:100%;
+    margin:0 auto; padding:64px 26px 26px; align-items:center; position:relative;}
+  .land-strip{display:flex; gap:8px; margin-bottom:24px;}
+  .land-strip span{width:24px; height:24px; border-radius:50%; border:2px solid #fff; box-shadow:0 2px 8px rgba(43,48,24,.18);
+    animation:fadeUp .6s cubic-bezier(.2,.7,.3,1) both;}
+  .land-strip span:nth-child(2){animation-delay:.06s;} .land-strip span:nth-child(3){animation-delay:.12s;}
+  .land-strip span:nth-child(4){animation-delay:.18s;} .land-strip span:nth-child(5){animation-delay:.24s;}
+  .land-badge{display:inline-flex; align-items:center; gap:8px; background:var(--card); border:1px solid var(--line);
+    border-radius:999px; padding:6px 16px; font-size:12.5px; color:var(--ink-soft); margin-bottom:20px; letter-spacing:.4px;
+    animation:fadeUp .5s .1s cubic-bezier(.2,.7,.3,1) both;}
+  .land-badge::before{content:''; width:8px; height:8px; border-radius:50%; background:var(--green); animation:pulseDot 2.6s ease-in-out infinite;}
+  .hero h1{font-family:var(--disp); font-size:54px; letter-spacing:-2px; color:var(--dark); line-height:1.05;
+    animation:fadeUp .5s .18s cubic-bezier(.2,.7,.3,1) both;}
+  .hero h1 em{font-style:normal; color:var(--olive);}
+  .hero .tag{max-width:520px; color:var(--ink-soft); font-size:16px; line-height:1.62; margin:18px 0 0;
+    animation:fadeUp .5s .26s cubic-bezier(.2,.7,.3,1) both;}
+  .cta-row{display:flex; gap:12px; flex-wrap:wrap; margin-top:26px; animation:fadeUp .5s .34s cubic-bezier(.2,.7,.3,1) both;}
+  .cta-row .btn{padding:13px 26px; font-size:15px;}
+  .chips{display:flex; gap:10px; flex-wrap:wrap; margin-top:28px; animation:fadeUp .5s .42s cubic-bezier(.2,.7,.3,1) both;}
+  .chip-stat{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:9px 15px;
+    font-size:12px; color:var(--mut); box-shadow:0 1px 4px rgba(43,48,24,.05);}
+  .chip-stat b{display:block; color:var(--dark); font-family:var(--disp); font-size:17px; letter-spacing:-.3px;}
+
+  /* 3D isometric ward */
+  .scene{display:flex; flex-direction:column; align-items:center; justify-content:center; perspective:1300px;
+    min-height:380px; animation:fadeUp .6s .3s cubic-bezier(.2,.7,.3,1) both;}
+  .floor{display:grid; grid-template-columns:repeat(3,64px); gap:26px; transform:rotateX(56deg) rotateZ(45deg);
+    transform-style:preserve-3d; animation:sway 10s ease-in-out infinite; transition:transform .25s ease-out;}
+  @keyframes sway{0%,100%{transform:rotateX(56deg) rotateZ(45deg);}50%{transform:rotateX(58.5deg) rotateZ(41deg);}}
+  .bed{position:relative; width:64px; height:104px; transform-style:preserve-3d; animation:bob 5s ease-in-out infinite alternate;}
+  @keyframes bob{from{transform:translateZ(0);}to{transform:translateZ(9px);}}
+  .bed .frame{position:absolute; inset:-5px; background:#e3e5d2; border:1.5px solid #c9cdb0; border-radius:10px; transform:translateZ(4px);}
+  .bed .mattress{position:absolute; inset:0; background:#fff; border:1.5px solid #d5d8bf; border-radius:8px; transform:translateZ(12px);}
+  .bed .pillow{position:absolute; top:8px; left:9px; right:9px; height:20px; background:var(--khaki); border-radius:5px; transform:translateZ(22px);}
+  .bed .blanket{position:absolute; bottom:8px; left:9px; right:9px; height:50px; background:var(--olive); border-radius:5px; transform:translateZ(18px);}
+  .bed .blanket::after{content:''; position:absolute; top:0; left:0; right:0; height:10px; background:rgba(255,255,255,.25); border-radius:5px 5px 0 0;}
+  .bed .dot{position:absolute; top:-10px; right:-10px; width:14px; height:14px; border-radius:50%; transform:translateZ(30px);
+    border:2px solid #fff; box-shadow:0 2px 6px rgba(43,48,24,.3);}
+  .bed .dot.g{background:var(--green);}
+  .bed .dot.a{background:#c9922e; animation:pulseDot 2s ease-in-out infinite;}
+  .bed .dot.r{background:var(--red); animation:pulseDot 1.4s ease-in-out infinite;}
+  .scene-shadow{width:300px; height:46px; margin-top:26px; border-radius:50%;
+    background:radial-gradient(ellipse at center, rgba(43,48,24,.22), transparent 70%);}
+  .scene-caption{margin-top:2px; font-size:12px; color:var(--mut); letter-spacing:.6px; text-transform:uppercase;}
+
+  /* steps */
+  .steps{display:flex; gap:12px; max-width:980px; width:100%; margin:4px auto 0; padding:6px 26px 44px; position:relative;}
+  .step{flex:1; background:var(--card); border:1px solid var(--line); border-radius:16px; padding:18px 20px;
+    box-shadow:0 1px 4px rgba(43,48,24,.05); transition:.18s; animation:fadeUp .5s .5s cubic-bezier(.2,.7,.3,1) both;}
+  .step:nth-child(2){animation-delay:.56s;} .step:nth-child(3){animation-delay:.62s;}
+  .step:hover{transform:translateY(-3px); box-shadow:0 10px 24px rgba(43,48,24,.1); border-color:var(--khaki);}
+  .step .num{width:27px; height:27px; border-radius:50%; background:var(--dark); color:var(--paper); font-size:12.5px;
+    font-weight:700; display:flex; align-items:center; justify-content:center; margin-bottom:11px;}
+  .step b{display:block; font-family:var(--disp); font-size:14.5px; color:var(--dark); margin-bottom:5px;}
+  .step span{font-size:12.5px; color:var(--ink-soft); line-height:1.55;}
+  .land-foot{position:relative; text-align:center; padding:0 20px 26px; color:var(--mut); font-size:12.5px;}
+  .land-foot a{color:var(--olive);}
+
+  /* ---------- entry (role + name) ---------- */
+  .entry-wrap{max-width:640px; margin:0 auto; padding:56px 20px 40px;}
+  .entry-wrap h1{font-family:var(--disp); font-size:32px; letter-spacing:-.8px; color:var(--dark); text-align:center;}
+  .entry-wrap .sub{color:var(--ink-soft); margin:8px 0 30px; font-size:14.5px; text-align:center; line-height:1.55;}
+  .role-card{display:flex; align-items:center; gap:16px; width:100%; text-align:left;
+    background:var(--card); border:1.5px solid var(--line); border-radius:18px; padding:18px 20px; margin-bottom:12px;
+    color:var(--ink); transition:.18s; box-shadow:0 1px 4px rgba(43,48,24,.06);}
+  .role-card:hover{border-color:var(--olive); transform:translateY(-2px); box-shadow:0 8px 22px rgba(43,48,24,.12);}
+  .role-card.sel{background:var(--dark); border-color:var(--dark); color:var(--paper); box-shadow:0 10px 26px rgba(55,61,33,.35);}
+  .role-card .ic{font-size:21px; width:50px; height:50px; display:flex; align-items:center; justify-content:center;
+    border-radius:14px; background:var(--info-bg); flex-shrink:0; transition:.18s;}
+  .role-card.sel .ic{background:var(--olive);}
+  .role-card .rc-mid{flex:1;}
+  .role-card b{display:block; font-size:16px; font-family:var(--disp);}
+  .role-card.sel b{color:var(--paper);}
+  .role-card .rc-mid>span{color:var(--mut); font-size:13px; display:block; margin-top:2px;}
+  .role-card.sel .rc-mid>span{color:#cdd2b6;}
+  .role-card .rc-arrow{font-size:18px; color:var(--mut); transition:.18s;}
+  .role-card:hover .rc-arrow{color:var(--dark); transform:translateX(3px);}
+  .role-card.sel .rc-arrow{color:var(--khaki);}
+  .name-card{background:var(--card); border:1px solid var(--line); border-radius:16px; padding:18px 20px; margin-top:6px;
+    animation:fadeUp .3s cubic-bezier(.2,.7,.3,1) both;}
+  .name-note{font-size:12.5px; color:var(--mut); margin-top:10px; line-height:1.5;}
+  .entry-back{display:block; margin:22px auto 0; background:none; border:none; color:var(--olive); font-size:13.5px; font-weight:500;}
+  .entry-back:hover{text-decoration:underline;}
+
+  /* ---------- app layout ---------- */
+  .layout{display:flex; min-height:100vh;}
+  aside.side{width:238px; background:var(--dark); color:var(--paper); position:fixed; top:0; bottom:0; left:0;
+    display:flex; flex-direction:column; padding:22px 14px 18px; z-index:30;}
+  .side .brand{display:flex; align-items:center; gap:10px; font-family:var(--disp); font-weight:700; font-size:19px;
+    letter-spacing:-.4px; color:var(--paper); padding:2px 8px;}
+  .side .brand .mark{width:30px; height:30px; border-radius:9px; background:var(--olive); display:flex; align-items:center; justify-content:center; flex-shrink:0;}
+  .side .brand .mark::before{content:''; width:14px; height:14px;
+    background:var(--paper);
+    -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M22 12h-4l-3 9L9 3l-3 9H2'/%3E%3C/svg%3E") center/contain no-repeat;
+    mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M22 12h-4l-3 9L9 3l-3 9H2'/%3E%3C/svg%3E") center/contain no-repeat;}
+  .side .sec{font-size:10px; text-transform:uppercase; letter-spacing:1.6px; color:#a8ad8c; margin:26px 12px 8px; font-weight:700;}
+  .side nav{display:flex; flex-direction:column; gap:3px;}
+  .side nav button{display:flex; align-items:center; gap:12px; background:none; border:none; color:#cdd2b6;
+    padding:8px 12px; border-radius:12px; font-size:14px; text-align:left; transition:.15s; width:100%;}
+  .side nav button .ic{font-size:15px; width:32px; height:32px; display:flex; align-items:center; justify-content:center;
+    background:rgba(239,241,236,.07); border-radius:9px; flex-shrink:0; transition:.15s;}
+  .side nav button:hover{background:rgba(239,241,236,.08); color:#fff;}
+  .side nav button.on{background:var(--khaki); color:var(--dark); font-weight:600;}
+  .side nav button.on .ic{background:rgba(43,48,24,.14);}
+  .side .me{margin-top:auto; background:rgba(239,241,236,.07); border:1px solid rgba(239,241,236,.14);
+    border-radius:14px; padding:12px; display:flex; align-items:center; gap:10px;}
+  .side .me .avatar{width:36px; height:36px; border-radius:50%; background:var(--khaki); color:var(--dark);
+    display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px; flex-shrink:0;}
+  .side .me b{display:block; font-size:13px; color:#fff; line-height:1.25;}
+  .side .me span{font-size:11.5px; color:#b6bc9c;}
+  .side .me button{margin-left:auto; background:none; border:1px solid rgba(239,241,236,.28); color:#dfe2cd;
+    border-radius:999px; padding:5px 10px; font-size:11px; transition:.15s; flex-shrink:0;}
+  .side .me button:hover{background:rgba(239,241,236,.12); color:#fff;}
+  header.top{display:none;}
+  .main-col{flex:1; margin-left:238px; min-width:0;}
+  main{max-width:920px; margin:0 auto; padding:26px 22px 70px;}
+  .bottomnav{display:none;}
+
+  /* ---------- guide ---------- */
+  .guide-fab{position:fixed; right:20px; bottom:20px; z-index:40; width:52px; height:52px; border-radius:50%;
+    background:var(--dark); color:var(--paper); border:none; font-size:20px; font-weight:700; font-family:var(--disp);
+    box-shadow:0 8px 24px rgba(43,48,24,.32); transition:.18s;}
+  .guide-fab:hover{transform:scale(1.07); background:var(--olive);}
+  aside.guide{position:fixed; top:0; right:0; bottom:0; width:350px; max-width:94vw; background:var(--card);
+    border-left:1px solid var(--line); z-index:45; transform:translateX(105%);
+    transition:transform .3s cubic-bezier(.2,.7,.3,1); display:flex; flex-direction:column;
+    box-shadow:-14px 0 44px rgba(43,48,24,.16);}
+  aside.guide.open{transform:none;}
+  .g-head{display:flex; align-items:flex-start; gap:10px; padding:18px 18px 14px; border-bottom:1px solid var(--line);
+    background:var(--info-bg);}
+  .g-head b{display:block; font-family:var(--disp); font-size:15.5px; color:var(--dark);}
+  .g-head span{font-size:11.5px; color:var(--ink-soft); line-height:1.45; display:block; margin-top:2px;}
+  .g-head button{margin-left:auto; background:none; border:none; font-size:16px; color:var(--mut); padding:2px 6px;}
+  .g-head button:hover{color:var(--dark);}
+  .g-body{overflow-y:auto; padding:16px 18px 30px;}
+  .g-sec{font-size:11px; text-transform:uppercase; letter-spacing:1.2px; color:var(--taupe); font-weight:700; margin:14px 0 8px;}
+  .g-sec:first-child{margin-top:0;}
+  .tip{background:var(--paper); border:1px solid var(--line); border-radius:12px; padding:10px 13px;
+    font-size:13px; color:var(--ink-soft); line-height:1.55; margin-bottom:8px;}
+  .tip b{color:var(--dark);}
+  .chip{display:block; width:100%; text-align:left; background:var(--card); border:1px solid var(--line);
+    border-radius:12px; padding:10px 13px; font-size:13px; color:var(--ink); margin-bottom:6px; transition:.15s;}
+  .chip:hover{border-color:var(--olive);}
+  .chip.on{border-color:var(--dark); background:var(--info-bg); font-weight:600;}
+  .answer{background:var(--paper); border:1px solid var(--line); border-left:3px solid var(--olive);
+    border-radius:10px; padding:10px 13px; font-size:13px; color:var(--ink-soft); line-height:1.55; margin:-2px 0 8px;
+    animation:fadeUp .25s ease both;}
+
+  /* ---------- shared ---------- */
+  .grid{display:grid; gap:14px;}
+  .stats{grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); margin-bottom:20px;}
+  .stat{background:var(--card); border:1px solid var(--line); border-radius:16px; padding:16px 18px; box-shadow:0 1px 4px rgba(43,48,24,.05);}
+  .stat .n{font-size:27px; font-weight:700; font-family:var(--disp); letter-spacing:-.5px; color:var(--dark);}
+  .stat .l{font-size:12px; color:var(--mut); margin-top:3px; line-height:1.45;}
+  .card{background:var(--card); border:1px solid var(--line); border-radius:16px; padding:18px 20px; margin-bottom:16px; box-shadow:0 1px 4px rgba(43,48,24,.05);}
+  .card h3{font-size:15px; margin-bottom:12px; font-family:var(--disp); letter-spacing:.2px; color:var(--dark);}
+  .pill{display:inline-block; border-radius:999px; padding:2.5px 11px; font-size:12px; font-weight:600;}
+  .pill.g{background:var(--green-bg); color:var(--green); border:1px solid #ccd3ae;}
+  .pill.r{background:var(--red-bg); color:var(--red); border:1px solid #e5c5be;}
+  .pill.a{background:var(--amber-bg); color:var(--amber); border:1px solid #e0d5b0;}
+  .pill.b{background:var(--info-bg); color:var(--info); border:1px solid #d3d6b9;}
+  .pill.grey{background:#eceee2; color:var(--mut); border:1px solid var(--line);}
+  .banner{border-radius:12px; padding:12px 16px; font-size:14px; margin-bottom:14px; line-height:1.5;}
+  .banner.r{background:var(--red-bg); color:#7c3327; border:1px solid #e5c5be;}
+  .banner.a{background:var(--amber-bg); color:#6b5416; border:1px solid #e0d5b0;}
+  .banner.b{background:var(--info-bg); color:var(--ink-soft); border:1px solid #d3d6b9;}
+  .bar{height:7px; background:#e2e4d2; border-radius:99px; overflow:hidden; margin-top:10px;}
+  .bar>div{height:100%; background:var(--khaki); border-radius:99px;}
+  .bar.g>div{background:var(--green);}
+  .bar.r>div{background:var(--red);}
+
+  .scroll-x{overflow-x:auto; border-radius:16px;}
+  table.list{width:100%; border-collapse:collapse; background:var(--card); border:1px solid var(--line); border-radius:16px; overflow:hidden;}
+  table.list th,table.list td{padding:11px 14px; text-align:left; font-size:14px; border-bottom:1px solid var(--line);}
+  table.list th{background:var(--paper); font-size:11px; text-transform:uppercase; letter-spacing:1px; color:var(--ink-soft); font-weight:600;}
+  table.list tr:last-child td{border-bottom:none;}
+  table.list tr.clickable{cursor:pointer; transition:background .12s;}
+  table.list tr.clickable:hover{background:#f4f5ea;}
+
+  .btn{display:inline-block; border:1px solid transparent; border-radius:999px; padding:10px 20px; font-size:14px; font-weight:600;
+    background:var(--dark); color:var(--paper); transition:.15s; box-shadow:0 2px 8px rgba(43,48,24,.2);}
+  .btn:hover{background:var(--olive); transform:translateY(-1px); box-shadow:0 5px 14px rgba(43,48,24,.26);}
+  .btn.g{background:var(--green); color:#fff;}
+  .btn.g:hover{background:#4a5c2b;}
+  .btn.r{background:var(--red); color:#fff;}
+  .btn.r:hover{background:#8a392f;}
+  .btn.ghost{background:var(--card); color:var(--ink); border:1px solid var(--line-strong); box-shadow:none;}
+  .btn.sm{padding:6px 14px; font-size:13px;}
+  .btn:disabled{background:#d9dcc6; color:var(--mut); box-shadow:none; cursor:not-allowed; transform:none;}
+  .btn-row{display:flex; gap:10px; flex-wrap:wrap; margin-top:16px;}
+
+  label.f{display:block; font-size:12.5px; color:var(--ink-soft); margin:14px 0 6px; font-weight:500; letter-spacing:.3px;}
+  input.f,select.f,textarea.f{width:100%; border:1px solid var(--line-strong); border-radius:12px; padding:11px 14px; font-size:15px;
+    background:#fbfbf7; color:var(--ink); transition:.15s;}
+  input.f::placeholder,textarea.f::placeholder{color:#adaf97;}
+  input.f:focus,select.f:focus,textarea.f:focus{outline:none; border-color:var(--olive); box-shadow:0 0 0 3px rgba(112,119,68,.2);}
+  .err{color:var(--red); font-size:13px; margin-top:8px;}
+  .hint{font-size:13px; color:var(--ink-soft); margin-bottom:14px; line-height:1.55; padding:11px 15px; background:var(--info-bg); border:1px solid #d3d6b9; border-radius:12px;}
+  .hint b{color:var(--dark); font-weight:600;}
+
+  .detail-head{display:flex; justify-content:space-between; align-items:flex-start; gap:10px; flex-wrap:wrap;}
+  .kv{display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:10px; margin:14px 0;}
+  .kv div{background:var(--paper); border:1px solid var(--line); border-radius:12px; padding:10px 12px; font-size:12px; color:var(--mut);}
+  .kv b{display:block; font-size:14.5px; margin-top:3px; color:var(--ink); font-weight:600;}
+  .chart{display:flex; align-items:flex-end; gap:8px; height:120px; padding:10px 4px 0; border-bottom:2px solid var(--line-strong);}
+  .chart .col{flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%;}
+  .chart .cb{width:70%; max-width:36px; border-radius:6px 6px 0 0; min-height:3px; background:var(--khaki); border:1px solid #a8ac7d; border-bottom:none;}
+  .chart .cb.fever{background:var(--red); border-color:#8a392f;}
+  .chart .cl{font-size:10px; color:var(--mut); margin-top:5px;}
+  .chart .cv{font-size:10.5px; margin-bottom:3px; color:var(--ink-soft); font-weight:600;}
+  .log-line{font-size:13.5px; padding:8px 0; border-bottom:1px dashed var(--line); color:var(--ink-soft);}
+  .log-line:last-child{border-bottom:none;}
+
+  .filter-row{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px;}
+  .filter-row button{border:1px solid var(--line-strong); background:var(--card); border-radius:999px; padding:7px 15px; font-size:13px; color:var(--ink-soft); transition:.15s;}
+  .filter-row button:hover{border-color:var(--olive);}
+  .filter-row button.on{background:var(--dark); color:var(--paper); border-color:var(--dark); font-weight:600;}
+
+  .toast{position:fixed; left:50%; bottom:26px; transform:translateX(-50%); background:var(--dark); color:var(--paper);
+    padding:13px 22px; border-radius:999px; font-size:14px; z-index:60;
+    box-shadow:0 10px 30px rgba(43,48,24,.35); max-width:90vw;}
+  .back{background:none; border:none; color:var(--olive); font-size:14px; margin-bottom:14px; padding:0; font-weight:500;}
+  .back:hover{text-decoration:underline;}
+  .foot{max-width:920px; margin:0 auto; padding:0 22px 30px; color:var(--mut); font-size:12px; text-align:center;}
+  h1,h2,h3{font-family:var(--disp);}
+
+  /* ---------- motion & polish ---------- */
+  @keyframes fadeUp{from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:none;}}
+  @keyframes grow{from{transform:scaleY(0);} to{transform:scaleY(1);}}
+  @keyframes toastIn{from{opacity:0; transform:translate(-50%,14px);} to{opacity:1; transform:translate(-50%,0);}}
+  @keyframes pulseDot{0%,100%{transform:scale(1); opacity:1;} 50%{transform:scale(1.35); opacity:.55;}}
+  .stat, .card, .banner, .hint{animation:fadeUp .45s cubic-bezier(.2,.7,.3,1) both;}
+  .stat:nth-child(2){animation-delay:.05s;} .stat:nth-child(3){animation-delay:.1s;}
+  .stat:nth-child(4){animation-delay:.15s;} .stat:nth-child(5){animation-delay:.2s;}
+  .stat{transition:.18s;}
+  .stat:hover{transform:translateY(-2px); box-shadow:0 7px 20px rgba(43,48,24,.1); border-color:var(--line-strong);}
+  .chart .cb{transform-origin:bottom; animation:grow .5s cubic-bezier(.2,.7,.3,1) both;}
+  .chart .col:nth-child(2) .cb{animation-delay:.04s;} .chart .col:nth-child(3) .cb{animation-delay:.08s;}
+  .chart .col:nth-child(4) .cb{animation-delay:.12s;} .chart .col:nth-child(5) .cb{animation-delay:.16s;}
+  .chart .col:nth-child(6) .cb{animation-delay:.2s;} .chart .col:nth-child(7) .cb{animation-delay:.24s;}
+  .toast{animation:toastIn .3s cubic-bezier(.2,.7,.3,1);}
+  .btn:active{transform:scale(.96);}
+  .btn{position:relative; overflow:hidden;}
+  .btn::after{content:''; position:absolute; inset:0; border-radius:inherit; background:rgba(255,255,255,.14);
+    opacity:0; transition:opacity .25s;}
+  .btn:hover::after{opacity:1;}
+  .btn:disabled::after{display:none;}
+  table.list tr.clickable:active{background:var(--paper);}
+  .kv div{transition:.15s;}
+  .kv div:hover{border-color:var(--olive);}
+  .filter-row button:active{transform:scale(.95);}
+  .bar>div{transition:width .6s cubic-bezier(.2,.7,.3,1);}
+  .scroll-x::-webkit-scrollbar{height:8px;}
+  .scroll-x::-webkit-scrollbar-thumb{background:var(--line-strong); border-radius:99px;}
+  .scroll-x::-webkit-scrollbar-thumb:hover{background:var(--olive);}
+  :focus-visible{outline:2px solid var(--olive); outline-offset:2px; border-radius:6px;}
+  @media (prefers-reduced-motion: reduce){
+    *, *::before, *::after{animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important;}
+    .floor{animation:none;}
+  }
+
+  @media (max-width:900px){
+    .hero{grid-template-columns:1fr; padding:44px 20px 16px; gap:8px;}
+    .hero h1{font-size:37px;}
+    .scene{min-height:280px; transform:scale(.72); margin:-46px 0 -34px;}
+    .steps{flex-direction:column; padding-bottom:34px;}
+  }
+  @media (max-width:860px){
+    aside.side{display:none;}
+    .main-col{margin-left:0;}
+    header.top{display:flex; align-items:center; gap:10px; padding:12px 16px; position:sticky; top:0; z-index:25;
+      background:var(--card); border-bottom:1px solid var(--line);}
+    header.top .brand{display:flex; align-items:center; gap:8px; font-family:var(--disp); font-weight:700; font-size:18px; color:var(--dark);}
+    header.top .brand .mark{width:24px; height:24px; border-radius:7px; background:var(--olive); display:inline-flex; align-items:center; justify-content:center;}
+    header.top .brand .mark::before{content:''; width:12px; height:12px; background:var(--paper);
+      -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M22 12h-4l-3 9L9 3l-3 9H2'/%3E%3C/svg%3E") center/contain no-repeat;
+      mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M22 12h-4l-3 9L9 3l-3 9H2'/%3E%3C/svg%3E") center/contain no-repeat;}
+    header.top .gbtn, header.top .switch{background:var(--paper); border:1px solid var(--line-strong); color:var(--ink-soft);
+      border-radius:999px; padding:6px 13px; font-size:12.5px; font-weight:500;}
+    header.top .sp{flex:1;}
+    main{padding:16px 14px 130px;}
+    .bottomnav{display:flex; position:fixed; bottom:12px; left:14px; right:14px; background:var(--card);
+      border:1px solid var(--line); border-radius:22px; z-index:35; padding:6px;
+      box-shadow:0 12px 32px rgba(43,48,24,.18);}
+    .bottomnav button{flex:1; background:none; border:none; display:flex; flex-direction:column; align-items:center;
+      gap:3px; font-size:10px; color:var(--mut); padding:6px 2px; border-radius:16px; transition:.15s;}
+    .bottomnav button .ic{font-size:17px; width:44px; height:26px; display:flex; align-items:center; justify-content:center;
+      border-radius:999px; transition:.18s;}
+    .bottomnav button.on{color:var(--dark); font-weight:700;}
+    .bottomnav button.on .ic{background:var(--dark); color:var(--paper);}
+    .guide-fab{bottom:96px; right:16px; width:46px; height:46px; font-size:18px;}
+    .land h1{font-size:40px;}
+    table.list th:nth-child(4),table.list td:nth-child(4){display:none;}
+  }
+
+/* ---------- dashboard: reference layout ---------- */
+.db-hero{position:relative; overflow:hidden; border-radius:24px; border:1px solid #d8dccb; background:linear-gradient(115deg,#f4f6ea 0%, #e6e9d2 34%, #c9cd9f 72%, #a8ad7c 100%); padding:26px 30px; margin-bottom:18px; min-height:132px;}
+.db-hero .db-scene{position:absolute; right:0; top:0; bottom:0; width:52%; pointer-events:none;}
+.db-hero .dt{font-size:13px; font-weight:700; color:#5d6138; letter-spacing:.02em; position:relative;}
+.db-hero h2{margin:6px 0 4px; font-size:30px; color:var(--dark); letter-spacing:-.02em; position:relative;}
+.db-hero h2 em{font-style:normal; color:#565c2e;}
+.db-hero .sub{font-size:14px; color:#5d6138; position:relative;}
+.live-pill{position:absolute; top:18px; right:18px; z-index:2; display:inline-flex; align-items:center; gap:7px; background:rgba(239,241,236,.85); border:1px solid #d8dccb; color:#3f4526; font-size:12px; font-weight:800; padding:7px 13px; border-radius:999px; backdrop-filter:blur(3px);}
+.live-pill i{width:8px;height:8px;border-radius:50%;background:var(--green); box-shadow:0 0 0 0 rgba(111,125,62,.5); animation:pulse 2.4s infinite;}
+.grid.stats.db5{grid-template-columns:repeat(5,1fr);}
+.db-stat{position:relative;}
+.db-ic{width:34px; height:34px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:16px; background:#eef0e2; border:1px solid #dde1c8; margin-bottom:10px;}
+.db-stat.alertcard{border:1.5px solid #d8a8a0; background:linear-gradient(160deg,#fff, #faf0ec);}
+.db-chip{position:absolute; top:14px; right:14px; font-size:11px; font-weight:800; color:#a84b41; background:#f6e3df; border:1px solid #e4c4bd; padding:3px 8px; border-radius:999px;}
+.db-pct{font-size:12px; font-weight:800; color:#6b7050;}
+.db-row2{display:grid; grid-template-columns:1.9fr 1fr; gap:16px; margin-bottom:16px;}
+.card h3 .n-chip{float:right; font-size:11px; font-weight:800; color:#a84b41; background:#f6e3df; border:1px solid #e4c4bd; padding:4px 10px; border-radius:999px;}
+.al-row{display:flex; align-items:center; gap:13px; width:100%; text-align:left; padding:13px 14px; border:1px solid var(--line); border-radius:14px; background:#fff; cursor:pointer; font:inherit; color:inherit; transition:transform .18s, box-shadow .18s, border-color .18s;}
+.al-row:hover{transform:translateY(-2px); box-shadow:var(--shadow); border-color:#c9cda9;}
+.al-row .al-ic{width:38px; height:38px; flex:0 0 38px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:17px;}
+.al-ic.r{background:#f6e3df; border:1px solid #e4c4bd;}
+.al-ic.a{background:#f4ecd4; border:1px solid #e0d3ab;}
+.al-row b{display:block; font-size:14px; color:var(--ink);}
+.al-row span{display:block; font-size:12.5px; color:var(--mut); margin-top:1px;}
+.al-row .chev{margin-left:auto; color:#a3a77f; font-size:22px; font-weight:300;}
+.occ-wrap{display:flex; align-items:center; gap:20px;}
+.occ-legend{display:grid; gap:10px; font-size:13.5px; color:var(--ink); flex:1;}
+.occ-legend div{display:flex; align-items:center; gap:9px;}
+.occ-legend b{margin-left:auto;}
+.dotlg{width:11px; height:11px; border-radius:50%;}
+.round-banner{display:flex; align-items:center; gap:20px; border-radius:22px; padding:22px 28px; background:linear-gradient(120deg,#373d21 0%, #4d5428 55%, #707744 120%); color:#eff1ec; box-shadow:var(--shadow); position:relative; overflow:hidden;}
+.round-banner::after{content:''; position:absolute; right:-40px; top:-60px; width:220px; height:220px; border-radius:50%; background:rgba(189,189,139,.18);}
+.round-banner h3{color:#fff; margin:0 0 4px; font-size:20px;}
+.round-banner p{margin:0; font-size:13.5px; color:#cfd3ab;}
+.round-banner .btn{margin-left:auto; background:#eff1ec; color:#2c3118; flex:0 0 auto; position:relative; z-index:1;}
+.round-banner .btn:hover{background:#fff;}
+@media (max-width:1100px){ .grid.stats.db5{grid-template-columns:repeat(3,1fr);} .db-row2{grid-template-columns:1fr;} }
+@media (max-width:860px){ .grid.stats.db5{grid-template-columns:repeat(2,1fr);} .db-hero{min-height:150px;} .db-hero h2{font-size:23px;} .round-banner{flex-direction:column; align-items:flex-start;} .round-banner .btn{margin-left:0;} }
+
+
+/* ---------- entry: reference layout ---------- */
+.entry-wrap{text-align:center; max-width:680px; margin:0 auto; padding:44px 20px 26px; position:relative;}
+.entry-brand{display:flex; align-items:center; justify-content:center; gap:9px; font-weight:800; font-size:19px; color:var(--dark); margin-bottom:30px;}
+.entry-brand .mark{width:30px; height:30px; border-radius:9px;}
+.entry-wrap h1{font-size:46px; letter-spacing:-.03em; color:var(--dark); margin:0 0 10px;}
+.entry-wrap h1 em{font-family:Georgia, 'Times New Roman', serif; font-style:italic; color:#565c2e; position:relative;}
+.entry-wrap h1 em::after{content:''; position:absolute; left:0; right:0; bottom:2px; height:8px; background:#dcdfb9; z-index:-1; border-radius:3px;}
+.entry-wrap .sub{font-size:15px; color:var(--mut); max-width:520px; margin:0 auto 30px;}
+.rrow{display:flex; align-items:center; gap:16px; width:100%; text-align:left; padding:16px 18px; border-radius:20px; border:1.5px solid var(--line); background:#fff; cursor:pointer; font:inherit; color:inherit; margin:0 0 12px; transition:transform .18s, box-shadow .18s, border-color .18s;}
+.rrow:hover{transform:translateY(-2px); box-shadow:var(--shadow); border-color:#c9cda9;}
+.rrow .ric{width:56px; height:56px; flex:0 0 56px; border-radius:16px; background:#eef0e2; border:1px solid #dde1c8; display:flex; align-items:center; justify-content:center; font-size:26px;}
+.rrow .rgo{margin-left:auto; width:40px; height:40px; flex:0 0 40px; border-radius:12px; border:1.5px solid var(--line); display:flex; align-items:center; justify-content:center; color:#707744; font-size:18px; transition:background .18s, color .18s;}
+.rrow b{display:block; font-size:16.5px; color:var(--ink);}
+.rrow .rdesc{display:block; font-size:13px; color:var(--mut); margin-top:2px;}
+.rrow.sel{border-color:#707744; box-shadow:0 0 0 3px rgba(112,119,68,.16), var(--shadow); background:linear-gradient(150deg,#fff, #f4f6e4);}
+.rrow.sel .rgo{background:#707744; border-color:#707744; color:#fff;}
+.entry-leaves{position:absolute; top:0; pointer-events:none; opacity:.5;}
+.entry-leaves.l{left:-30px;} .entry-leaves.r{right:-30px; transform:scaleX(-1);}
+@media (max-width:860px){ .entry-wrap h1{font-size:32px;} .entry-wrap{padding-top:30px;} .rrow .ric{width:46px; height:46px; flex-basis:46px; font-size:22px;} }
+
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+/* ================= WardFlow - isolation ward management prototype =================
+   Demo prototype. All patient data is synthetic and generated locally in the browser.
+*/
+
+const FEVER_C = 38.0;          // fever threshold in Celsius
+const CAPACITY = 74;           // rooms
+const CURE_DAYS = 3;           // fever-free days required for discharge
+const MORTALITY_BENCH = 15;    // expected mortality %
+const LS_KEY = 'wardflow_v1';
+
+/* ---------- deterministic seed RNG ---------- */
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;}}
+const rnd = mulberry32(20261112);
+const pick = arr => arr[Math.floor(rnd()*arr.length)];
+
+const FIRST=['Aarav','Meera','Rohan','Priya','Kabir','Ananya','Vikram','Sana','Arjun','Isha','Dev','Nadia','Rahul','Tara','Aditya','Kavya','Nikhil','Riya','Sameer','Zoya','Farhan','Lata','Mohan','Geeta','Harish','Pooja','Imran','Divya','Karan','Neha'];
+const LAST=['Sharma','Patel','Iyer','Khan','Mehta','Nair','Gupta','Reddy','Das','Kulkarni','Singh','Joshi','Chavan','Bose','Malhotra','Rao','Pillai','Verma','Saxena','Mukherjee'];
+const NURSES=['Nurse Anita','Nurse Joseph','Nurse Farah','Nurse Rohit'];
+const DOCTORS=['Dr. Rao','Dr. Fernandes','Dr. Qureshi'];
+const TREATMENTS=['Antiviral course A','Antiviral course B','IV fluids + monitoring','Antipyretics + rest','Oxygen support','Intensified observation'];
+
+function dstr(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function todayStr(){return dstr(new Date());}
+function daysAgoStr(n){const d=new Date(); d.setDate(d.getDate()-n); return dstr(d);}
+function pretty(ds){const [y,m,dd]=ds.split('-'); return dd+'/'+m;}
+
+/* ---------- seed synthetic facility ---------- */
+function seed(){
+  const patients=[];
+  for(let i=0;i<CAPACITY;i++){
+    const room='R-'+String(i+1).padStart(2,'0');
+    const daysIn=1+Math.floor(rnd()*12);        // admitted 1-12 days ago
+    const temps=[];
+    // profile: 'eligible' gets 3 clean trailing days, 'recovering' trending down, 'sick' ongoing fever
+    const prof = i%9===0 ? 'eligible' : (i%3===0 ? 'sick' : 'recovering');
+    for(let d=daysIn; d>=1; d--){
+      let t;
+      if(prof==='eligible'){ t = d<=CURE_DAYS ? 36.4+rnd()*0.9 : 38.2+rnd()*1.6; }
+      else if(prof==='recovering'){ t = 37.0 + (d/daysIn)*1.8 + rnd()*0.5; }
+      else { t = 38.0 + rnd()*1.8; }
+      temps.push({date:daysAgoStr(d), value:Math.round(t*10)/10, by:pick(NURSES)});
+    }
+    const p={
+      id:'P-'+(1000+i),
+      name:pick(FIRST)+' '+pick(LAST),
+      age:18+Math.floor(rnd()*60),
+      gender:pick(['F','M']),
+      room,
+      admittedOn:daysAgoStr(daysIn),
+      status:'admitted',
+      temps,
+      visits:[],
+      dischargeRecommended:false,
+      notes:[]
+    };
+    // doctors visited most patients on past days
+    for(let d=Math.min(daysIn,6); d>=1; d--){
+      if(rnd()>0.15) p.visits.push({date:daysAgoStr(d), doctor:pick(DOCTORS), treatment:pick(TREATMENTS), note:''});
+    }
+    patients.push(p);
+  }
+  // a few nurses already recorded some temperatures today (partial progress)
+  const shuffled=[...patients].sort(()=>rnd()-0.5);
+  shuffled.slice(0,21).forEach(p=>{
+    p.temps.push({date:todayStr(), value:Math.round((36.2+rnd()*3)*10)/10, by:pick(NURSES)});
+  });
+  // one patient got a duplicate temp today (data-quality example)
+  const dup=shuffled[0];
+  dup.temps.push({date:todayStr(), value:Math.round((36.4+rnd()*2)*10)/10, by:pick(NURSES)});
+  // some doctor visits already done today; two happened BEFORE any temp was recorded
+  shuffled.slice(21,30).forEach((p,ix)=>{
+    p.visits.push({date:todayStr(), doctor:pick(DOCTORS), treatment:pick(TREATMENTS), note:'', beforeTemp: ix<2 && !p.temps.some(t=>t.date===todayStr())});
+  });
+  // historical outcomes for quality tracking: 46 cured, 10 deceased -> 17.9% (above benchmark, triggers warning)
+  const outcomes=[];
+  for(let i=0;i<56;i++){
+    const deceased=i<10;
+    outcomes.push({
+      id:'H-'+(900+i), name:pick(FIRST)+' '+pick(LAST),
+      outcome: deceased?'deceased':'cured',
+      date:daysAgoStr(1+Math.floor(rnd()*20))
+    });
+  }
+  return {patients, outcomes, seededOn:todayStr()};
+}
+
+function load(){
+  try{const s=JSON.parse(localStorage.getItem(LS_KEY)); if(s&&s.seededOn===todayStr()) return s;}catch(e){}
+  const s=seed(); localStorage.setItem(LS_KEY, JSON.stringify(s)); return s;
+}
+function save(){localStorage.setItem(LS_KEY, JSON.stringify(state));}
+let state = load();
+
+/* ---------- domain helpers ---------- */
+function tempsOn(p,ds){return p.temps.filter(t=>t.date===ds);}
+function effectiveTempsOn(p,ds){return p.temps.filter(t=>t.date===ds && !t.superseded);}
+function tempToday(p){const t=effectiveTempsOn(p,todayStr()); return t.length?t[t.length-1]:null;}
+function visitsToday(p){return p.visits.filter(v=>v.date===todayStr());}
+function hasVisitToday(p){return visitsToday(p).length>0;}
+function visitBeforeTemp(p){return visitsToday(p).some(v=>v.beforeTemp) || (hasVisitToday(p)&&!tempToday(p));}
+function lastTemp(p){return p.temps.length?p.temps[p.temps.length-1]:null;}
+function isFever(v){return v>=FEVER_C;}
+function daysInWard(p){
+  const [y,m,d]=p.admittedOn.split('-').map(Number);
+  return Math.max(1, Math.round((new Date(todayStr()) - new Date(y,m-1,d))/86400000)+1);
+}
+// eligible: each of the last CURE_DAYS completed days has a record and all are fever-free
+function eligible(p){
+  if(p.status!=='admitted') return false;
+  const tt=tempToday(p);
+  if(tt && isFever(tt.value)) return false;   // a fresh fever restarts the clock
+  for(let k=1;k<=CURE_DAYS;k++){
+    const recs=effectiveTempsOn(p, daysAgoStr(k));
+    if(!recs.length) return false;
+    if(recs.some(r=>isFever(r.value))) return false;
+  }
+  return true;
+}
+function activePatients(){return state.patients.filter(p=>p.status==='admitted');}
+function mortality(){
+  const tot=state.outcomes.length; if(!tot) return {rate:0,tot,dec:0};
+  const dec=state.outcomes.filter(o=>o.outcome==='deceased').length;
+  return {rate:Math.round(dec/tot*1000)/10, tot, dec};
+}
+
+/* ---------- session ---------- */
+let session = JSON.parse(sessionStorage.getItem('wardflow_role')||'null');
+let pendingRole=null, entryScreen=false;
+const DEFAULT_NAMES={nurse:NURSES[0], doctor:DOCTORS[0], admin:'Admin desk'};
+const ROLE_META={
+  nurse:{icon:'\ud83c\udf21\ufe0f',label:'Nurse',desc:'Record daily patient temperatures'},
+  doctor:{icon:'\ud83e\ude7a',label:'Doctor',desc:'Review readings, treat patients, flag discharges'},
+  admin:{icon:'\ud83d\uddc2\ufe0f',label:'Admin staff',desc:'Discharges, admissions and bed management'}};
+function setRole(r){session={role:r, name:DEFAULT_NAMES[r]}; sessionStorage.setItem('wardflow_role',JSON.stringify(session)); render();}
+function pickRole(r){pendingRole=r; render();}
+function enterRole(){
+  const inp=document.getElementById('entry-name');
+  const nm=(inp&&inp.value.trim())||DEFAULT_NAMES[pendingRole];
+  session={role:pendingRole, name:nm}; pendingRole=null;
+  sessionStorage.setItem('wardflow_role',JSON.stringify(session)); render();
+}
+function logout(){sessionStorage.removeItem('wardflow_role'); session=null; entryScreen=false; pendingRole=null; render();}
+function showEntry(){entryScreen=true; render(); window.scrollTo(0,0);}
+
+/* ---------- small dom ---------- */
+const app=document.getElementById('app');
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let toastTimer;
+function toast(msg){
+  clearTimeout(toastTimer);
+  document.querySelectorAll('.toast').forEach(t=>t.remove());
+  const t=document.createElement('div'); t.className='toast'; t.textContent=msg;
+  document.body.appendChild(t); toastTimer=setTimeout(()=>t.remove(),2600);
+}
+
+/* ================= views ================= */
+function wardScene(){
+  const beds=[['g'],['a'],['g'],['r'],['g'],['g'],['a'],['g'],['g']];
+  return `<div class="scene" aria-hidden="true"><div class="floor" id="floor">`+beds.map((b,i)=>`
+    <div class="bed" style="animation-delay:${(i*0.4).toFixed(1)}s"><div class="frame"></div><div class="mattress"></div><div class="pillow"></div><div class="blanket"></div><div class="dot ${b[0]}"></div></div>`).join('')+`
+  </div><div class="scene-shadow"></div><div class="scene-caption">Live ward floor - 9 of 74 beds</div></div>`;
+}
+function viewLanding(){
+  const ps=activePatients();
+  const measured=ps.filter(tempToday).length;
+  const m=mortality();
+  app.innerHTML=`
+  <div class="land">
+    <div class="hero">
+      <div class="hero-copy">
+        <div class="land-strip"><span style="background:#eff1ec;border-color:#d8dccb"></span><span style="background:#373d21"></span><span style="background:#707744"></span><span style="background:#bdbd8b"></span><span style="background:#776153"></span></div>
+        <div class="land-badge">74-bed isolation &amp; treatment ward console</div>
+        <h1>Run the whole ward day from <em>one calm console</em>.</h1>
+        <p class="tag">Nurses log readings, doctors review and treat, admin frees beds - and the 3-day fever-free discharge rule is enforced at every step, not left to memory.</p>
+        <div class="cta-row">
+          <button class="btn" onclick="showEntry()">Enter the console →</button>
+          <a class="btn ghost" href="https://github.com/shreejesh12/wardflow" target="_blank" rel="noopener">View source</a>
+        </div>
+        <div class="chips">
+          <div class="chip-stat"><b>${ps.length}/${CAPACITY}</b>beds occupied</div>
+          <div class="chip-stat"><b>${measured}</b>readings logged today</div>
+          <div class="chip-stat"><b>${m.rate}%</b>mortality vs 15% target</div>
+        </div>
+      </div>
+      ${wardScene()}
+    </div>
+    <div class="steps">
+      <div class="step"><div class="num">1</div><b>Nurse rounds</b><span>One temperature per patient per day. Corrections keep the original in history - nothing is silently overwritten.</span></div>
+      <div class="step"><div class="num">2</div><b>Doctor review</b><span>Fresh readings surface first. Log visits and treatments, and flag patients who complete 3 fever-free days.</span></div>
+      <div class="step"><div class="num">3</div><b>Safe discharge</b><span>Admin re-checks the fever-free rule before any discharge. A broken streak blocks it and returns the patient to the doctor.</span></div>
+    </div>
+    <div class="land-foot">Demo prototype - all patient records are synthetic sample data stored only in this browser.</div>
+  </div>`;
+}
+
+function viewEntry(){
+  const leaf=`<svg class="entry-leaves l" width="120" height="150" viewBox="0 0 120 150" aria-hidden="true"><g fill="#a8ad7c"><path d="M60 150 q-6 -50 14 -78 q6 34 -2 78 Z"/><path d="M60 150 q-34 -34 -34 -70 q26 22 40 70 Z"/><path d="M60 150 q30 -44 18 -84 q-22 30 -24 84 Z" opacity=".7"/></g></svg><svg class="entry-leaves r" width="120" height="150" viewBox="0 0 120 150" aria-hidden="true"><g fill="#a8ad7c"><path d="M60 150 q-6 -50 14 -78 q6 34 -2 78 Z"/><path d="M60 150 q-34 -34 -34 -70 q26 22 40 70 Z"/><path d="M60 150 q30 -44 18 -84 q-22 30 -24 84 Z" opacity=".7"/></g></svg>`;
+  const cards=['nurse','doctor','admin'].map(r=>`
+    <button class="rrow ${pendingRole===r?'sel':''}" onclick="pickRole('${r}')"><span class="ric">${ROLE_META[r].icon}</span><span><b>${ROLE_META[r].label}</b><span class="rdesc">${ROLE_META[r].desc}</span></span><span class="rgo">→</span></button>`).join('');
+  app.innerHTML=`
+  <div class="entry-wrap">
+    ${leaf}
+    <div class="entry-brand"><span class="mark"></span>WardFlow</div>
+    <h1>Step into the <em>ward</em></h1>
+    <p class="sub">Choose the console for your role, then tell us your name so the records you create are labelled correctly.</p>
+    ${cards}
+    ${pendingRole?`<div class="name-card" style="text-align:left">
+      <label class="f" style="margin-top:0">Your name</label>
+      <input class="f" id="entry-name" placeholder="${esc(DEFAULT_NAMES[pendingRole])}" maxlength="40" autocomplete="off">
+      <div class="name-note">Demo sign-in only: no password and no real authentication - anyone can pick any role. The name is just used to label the records you create.</div>
+      <div class="btn-row"><button class="btn" style="width:100%" onclick="enterRole()">Enter as ${ROLE_META[pendingRole].label} →</button></div>
+    </div>`:''}
+    <button class="entry-back" onclick="entryScreen=false;render()">← Back to welcome page</button>
+  </div>
+  <div class="foot">Demo prototype - synthetic data only. Not medical advice.</div>`;
+}
+
+const TABS={
+  nurse:[['dash','🏠','Board'],['record','🌡️','Record'],['patients','👤','Patients']],
+  doctor:[['dash','🏠','Board'],['review','🩺','Review'],['patients','👤','Patients']],
+  admin:[['dash','🏠','Board'],['discharge','📤','Discharge'],['admit','➕','Admit'],['quality','📊','Quality'],['patients','👤','Patients']]};
+function shell(content, tab){
+  const tabs=TABS[session.role];
+  const initials=esc(session.name.split(/\s+/).map(w=>w[0]||'').join('').slice(0,2).toUpperCase())||'?';
+  const sideNav=tabs.map(([k,ic,l])=>`<button class="${tab===k?'on':''}" onclick="go('${k}')"><span class="ic">${ic}</span>${l}</button>`).join('');
+  const bottomNav=tabs.map(([k,ic,l])=>`<button class="${tab===k?'on':''}" onclick="go('${k}')"><span class="ic">${ic}</span>${l}</button>`).join('');
+  app.innerHTML=`
+  <div class="layout">
+    <aside class="side">
+      <div class="brand"><span class="mark"></span>WardFlow</div>
+      <div class="sec">Console</div>
+      <nav>${sideNav}</nav>
+      <div class="me">
+        <div class="avatar">${initials}</div>
+        <div><b>${esc(session.name)}</b><span>${ROLE_META[session.role].label}</span></div>
+        <button onclick="logout()" title="Sign out and pick another role">Switch</button>
+      </div>
+    </aside>
+    <div class="main-col">
+      <header class="top">
+        <span class="brand"><span class="mark"></span>WardFlow</span>
+        <span class="sp"></span>
+        <button class="switch" onclick="logout()">${esc(session.name)} · Switch</button>
+      </header>
+      <main>${content}</main>
+      <div class="foot">Demo prototype - synthetic data only. Not medical advice.</div>
+    </div>
+  </div>
+  <nav class="bottomnav">${bottomNav}</nav>
+  <button class="guide-fab" onclick="toggleGuide()" title="Open the WardFlow guide">?</button>
+  ${guideHtml()}`;
+}
+
+/* ---------- contextual guide ---------- */
+const GUIDE_TIPS={
+  dash:['The <b>stat cards</b> summarise today: beds, readings, visits and mortality. Bars fill as work completes.',
+        '<b>Amber and red banners</b> are warnings that need action - duplicates, visits before readings, or an over-benchmark mortality rate.',
+        'Use the <b>navigation</b> (left on desktop, bottom on phones) to jump to your next task.'],
+  record:['Tap <b>Record</b> next to a patient, enter the temperature, save. One reading per patient per day.',
+          'If a reading already exists, saving again logs a <b>correction</b> - the original stays visible in the history.',
+          'Readings must be between <b>34 and 43°C</b>; anything else is rejected as a likely typo.'],
+  review:['Patients with a <b>fresh reading</b> and no visit yet appear first - work top to bottom.',
+          'Open a patient to <b>log a visit</b> with a treatment and notes.',
+          'When a patient completes <b>3 full fever-free days</b>, the discharge button unlocks on their page.'],
+  discharge:['Only patients a doctor has <b>flagged</b> appear here.',
+             'The app <b>re-checks the 3-day rule</b> before every discharge. If a fever broke the streak, discharge is blocked and the patient returns to the doctor.',
+             'Each discharge frees a bed for the next admission.'],
+  admit:['Admissions need a name, age, gender and a <b>first temperature reading</b>.',
+         'If the ward is at <b>full capacity (74 beds)</b>, admissions stay locked until a discharge frees a bed.'],
+  quality:['Compares the facility\'s <b>mortality rate</b> against the expected 15% benchmark.',
+           'Over the benchmark? Escalate to the head doctor and review treatment protocols.'],
+  patients:['Every admitted patient, sorted by room. <b>Tap a row</b> to open the full record.',
+            'Pills show today\'s status: temperature, doctor visit, discharge eligibility.'],
+  patient:['Everything about one patient: today\'s reading, the <b>7-day temperature trend</b>, visits and history.',
+           'Available actions depend on your role - nurses record temperatures, doctors log visits and flag discharges.',
+           'A <b>fever today restarts</b> the 3-day fever-free clock immediately.']
+};
+const GUIDE_QA=[
+  ['How does a discharge work?','A doctor flags a patient after 3 full fever-free days, each with a recorded temperature. Admin then re-checks the rule and completes the discharge, which frees the bed. A fever on any day restarts the count.'],
+  ['What counts as a fever?','A reading of 38.0°C or higher. Fevers show as red pills and red bars in the trend chart.'],
+  ['What if a reading was entered wrong?','Save the correct value on the same patient. The app logs it as a correction and keeps the original reading in the history, marked "superseded" - nothing is deleted.'],
+  ['Is this real patient data?','No. Every patient is synthetic sample data generated for this demo, stored only in your browser\'s local storage. Nothing leaves your device.'],
+  ['What is the intended workflow?','Nurse records temperatures each morning → doctor reviews fresh readings and logs visits → doctor flags recovered patients → admin verifies and discharges them, freeing beds for new admissions.']
+];
+let guideOpen=sessionStorage.getItem('wardflow_guide')==='1';
+let guideAnswer=-1;
+function toggleGuide(){guideOpen=!guideOpen; sessionStorage.setItem('wardflow_guide',guideOpen?'1':'0'); render();}
+function askGuide(i){guideAnswer=(guideAnswer===i?-1:i); render();}
+function guideHtml(){
+  const key=view.patientId?'patient':view.tab;
+  const tips=GUIDE_TIPS[key]||GUIDE_TIPS.dash;
+  return `<aside class="guide ${guideOpen?'open':''}">
+    <div class="g-head"><div><b>WardFlow Guide</b><span>Built-in helper - answers come from the app's own rules, not an external AI.</span></div><button onclick="toggleGuide()" title="Close guide">✕</button></div>
+    <div class="g-body">
+      <div class="g-sec">On this screen</div>
+      ${tips.map(t=>`<div class="tip">${t}</div>`).join('')}
+      <div class="g-sec">Common questions</div>
+      ${GUIDE_QA.map((q,i)=>`<button class="chip ${guideAnswer===i?'on':''}" onclick="askGuide(${i})">${q[0]}</button>${guideAnswer===i?`<div class="answer">${q[1]}</div>`:''}`).join('')}
+    </div></aside>`;
+}
+
+let view={tab:'dash', patientId:null, filter:'all'};
+function go(tab){view={tab, patientId:null, filter: tab==='record'?'due': tab==='review'?'ready':'all'}; render(); window.scrollTo(0,0);}
+function openPatient(id){view.patientId=id; render(); window.scrollTo(0,0);}
+function setFilter(f){view.filter=f; render();}
+
+/* ----- dashboard (all roles) ----- */
+function viewDash(){
+  const ps=activePatients();
+  const measured=ps.filter(tempToday).length;
+  const visited=ps.filter(hasVisitToday).length;
+  const elig=ps.filter(eligible);
+  const pending=ps.filter(p=>p.dischargeRecommended);
+  const m=mortality();
+  const dupToday=ps.filter(p=>effectiveTempsOn(p,todayStr()).length>1);
+  const earlyVisits=ps.filter(visitBeforeTemp);
+  const overBench=m.rate>MORTALITY_BENCH;
+  const firstName=esc((session.name||ROLE_META[session.role].label).split(' ')[0]);
+  const hr=new Date().getHours();
+  const greet=hr<12?'Good morning':hr<17?'Good afternoon':'Good evening';
+  const dateStr=new Date().toLocaleDateString('en-GB',{weekday:'short', day:'numeric', month:'short'});
+  const occPct=Math.round(ps.length/CAPACITY*100);
+  const tempPct=ps.length?Math.round(measured/ps.length*100):0;
+  const visPct=ps.length?Math.round(visited/ps.length*100):0;
+  const pendPct=ps.length?Math.round(pending.length/ps.length*100):0;
+  const benchDelta=(m.rate-MORTALITY_BENCH).toFixed(1);
+
+  const scene=`<svg class="db-scene" viewBox="0 0 420 160" preserveAspectRatio="xMaxYMid slice" aria-hidden="true">
+    <circle cx="330" cy="38" r="30" fill="#eff1ec" opacity=".85"/>
+    <circle cx="330" cy="38" r="44" fill="#eff1ec" opacity=".25"/>
+    <path d="M0 160 L0 118 Q70 96 140 116 T290 110 T420 122 L420 160 Z" fill="#707744" opacity=".38"/>
+    <path d="M0 160 L0 132 Q90 114 180 130 T420 134 L420 160 Z" fill="#565c2e" opacity=".5"/>
+    <g opacity=".85">
+      <rect x="262" y="86" width="96" height="46" rx="4" fill="#3f4526"/>
+      <rect x="300" y="70" width="20" height="62" rx="3" fill="#3f4526"/>
+      <rect x="304" y="76" width="12" height="12" rx="2" fill="#eff1ec"/>
+      <rect x="306.5" y="73.5" width="7" height="17" rx="2" fill="#eff1ec"/>
+      <rect x="272" y="96" width="10" height="10" rx="2" fill="#bdbd8b"/>
+      <rect x="290" y="96" width="10" height="10" rx="2" fill="#bdbd8b"/>
+      <rect x="330" y="96" width="10" height="10" rx="2" fill="#bdbd8b"/>
+    </g>
+    <g fill="#565c2e" opacity=".55">
+      <path d="M30 160 q4 -26 12 -34 q-2 18 -4 34 Z"/>
+      <path d="M48 160 q8 -20 18 -26 q-4 16 -8 26 Z"/>
+      <path d="M392 160 q3 -22 10 -30 q-1 16 -3 30 Z"/>
+    </g>
+  </svg>`;
+
+  let html=`
+  <div class="db-hero">
+    ${scene}
+    <span class="live-pill"><i></i>Live Ward</span>
+    <div class="dt">${dateStr}</div>
+    <h2>${greet}, <em>${firstName}</em> 👋</h2>
+    <div class="sub">Ward at a glance. Here's what needs your attention.</div>
+  </div>
+  <div class="grid stats db5">
+    <div class="stat db-stat"><div class="db-ic">🛏️</div><div class="n">${ps.length} / ${CAPACITY}</div><div class="l">Beds Occupied</div><div class="bar ${ps.length>=CAPACITY?'r':'g'}"><div style="width:${occPct}%"></div></div><div class="db-pct">${occPct}%</div></div>
+    <div class="stat db-stat"><div class="db-ic">🌡️</div><div class="n">${measured} / ${ps.length}</div><div class="l">Temperatures Recorded</div><div class="bar"><div style="width:${tempPct}%"></div></div><div class="db-pct">${tempPct}%</div></div>
+    <div class="stat db-stat"><div class="db-ic">🩺</div><div class="n">${visited}</div><div class="l">Doctor Visits Today</div><div class="bar"><div style="width:${visPct}%"></div></div><div class="db-pct">${visPct}%</div></div>
+    <div class="stat db-stat"><div class="db-ic">📤</div><div class="n">${pending.length}</div><div class="l">Awaiting Discharge</div><div class="bar"><div style="width:${pendPct}%"></div></div><div class="db-pct">${pendPct}%</div></div>
+    <div class="stat db-stat ${overBench?'alertcard':''}">${overBench?`<span class="db-chip">↑ +${benchDelta}pp</span>`:''}<div class="db-ic">❤️</div><div class="n" style="color:${overBench?'var(--red)':'var(--green)'}">${m.rate}%</div><div class="l">Mortality Rate</div><div class="db-pct" style="font-weight:600">Benchmark: ${MORTALITY_BENCH}%</div></div>
+  </div>`;
+
+  const alerts=[];
+  if(overBench) alerts.push({cls:'r', ic:'💔', t:'Mortality rate above benchmark', d:`${m.rate}% vs ${MORTALITY_BENCH}% expected. Review treatment protocols.`, goTab:(session.role==='nurse'?'patients':'quality')});
+  if(dupToday.length) alerts.push({cls:'a', ic:'🌡️', t:'Repeated temperature reading', d:`${dupToday.length} patient(s) recorded multiple entries today (${dupToday.map(p=>esc(p.room)).join(', ')}). Verify before a doctor reviews them.`, goTab:(session.role==='doctor'?'review':'record')});
+  if(earlyVisits.length) alerts.push({cls:'a', ic:'🩺', t:`${earlyVisits.length} doctor visits before temperature`, d:`${earlyVisits.map(p=>esc(p.room)).join(', ')}. Re-check these patients after the reading is logged.`, goTab:(session.role==='doctor'?'review':'patients')});
+
+  const C=2*Math.PI*52;
+  html+=`
+  <div class="db-row2">
+    <div class="card"><h3>⚠️ Alerts &amp; Actions ${alerts.length?`<span class="n-chip">${alerts.length} Alert${alerts.length>1?'s':''}</span>`:''}</h3>
+      ${alerts.length? `<div style="display:grid; gap:10px">`+alerts.map(a=>`<button class="al-row" onclick="go('${a.goTab}')"><span class="al-ic ${a.cls}">${a.ic}</span><span><b>${a.t}</b><span>${a.d}</span></span><span class="chev">›</span></button>`).join('')+`</div>`
+      : `<p style="font-size:14px;color:var(--mut)">No alerts right now. The ward is running clean. ✅</p>`}
+    </div>
+    <div class="card"><h3>🛏️ Ward Occupancy</h3>
+      <div class="occ-wrap">
+        <svg width="128" height="128" viewBox="0 0 128 128" aria-label="${occPct}% occupied">
+          <circle cx="64" cy="64" r="52" fill="none" stroke="#e6e8d8" stroke-width="15"/>
+          <circle cx="64" cy="64" r="52" fill="none" stroke="#707744" stroke-width="15" stroke-linecap="round" stroke-dasharray="${(occPct/100*C).toFixed(1)} ${C.toFixed(1)}" transform="rotate(-90 64 64)"/>
+          <text x="64" y="61" text-anchor="middle" font-size="24" font-weight="800" fill="#373d21">${occPct}%</text>
+          <text x="64" y="80" text-anchor="middle" font-size="11" fill="#8b8f6e">Occupied</text>
+        </svg>
+        <div class="occ-legend">
+          <div><span class="dotlg" style="background:#707744"></span>Occupied Beds <b>${ps.length}</b></div>
+          <div><span class="dotlg" style="background:#bdbd8b"></span>Available Beds <b>${CAPACITY-ps.length}</b></div>
+          <div><span class="dotlg" style="background:#e0e2cd"></span>Total Beds <b>${CAPACITY}</b></div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+
+  const clip=`<svg width="74" height="74" viewBox="0 0 74 74" aria-hidden="true"><rect x="14" y="10" width="46" height="56" rx="7" fill="#eff1ec" opacity=".95"/><rect x="28" y="5" width="18" height="11" rx="5" fill="#bdbd8b"/><rect x="21" y="24" width="9" height="9" rx="2" fill="none" stroke="#707744" stroke-width="2.4"/><path d="M22.5 28.5 l2.5 2.5 4-4.5" stroke="#707744" stroke-width="2.2" fill="none" stroke-linecap="round"/><rect x="34" y="26" width="20" height="4" rx="2" fill="#bdbd8b"/><rect x="21" y="38" width="9" height="9" rx="2" fill="none" stroke="#707744" stroke-width="2.4"/><rect x="34" y="40" width="20" height="4" rx="2" fill="#e0e2cd"/><rect x="21" y="52" width="9" height="9" rx="2" fill="none" stroke="#707744" stroke-width="2.4"/><rect x="34" y="54" width="14" height="4" rx="2" fill="#e0e2cd"/><path d="M50 30 a9 9 0 1 1 -0.01 0" fill="none"/><circle cx="52" cy="52" r="11" fill="#373d21"/><path d="M52 46 v12 M48 52 h8" stroke="#eff1ec" stroke-width="2.6" stroke-linecap="round"/></svg>`;
+
+  if(session.role==='nurse'){
+    const due=ps.filter(p=>!tempToday(p));
+    html+=`<div class="round-banner">${clip}<div><h3>Your Round</h3><p>${due.length} patients still need their temperature recorded today.</p></div><button class="btn" onclick="go('record')">▶ Start Temperature Round →</button></div>`;
+  }
+  if(session.role==='doctor'){
+    const ready=ps.filter(p=>tempToday(p)&&!hasVisitToday(p));
+    html+=`<div class="round-banner">${clip}<div><h3>Your Review Queue</h3><p>${ready.length} patients have a fresh reading and are waiting for a visit. ${elig.length} meet the ${CURE_DAYS}-day fever-free discharge rule.</p></div><button class="btn" onclick="go('review')">▶ Open Review Queue →</button></div>`;
+  }
+  if(session.role==='admin'){
+    html+=`<div class="round-banner">${clip}<div><h3>Bed Management</h3><p>${pending.length} patient(s) are doctor-approved for discharge. Freeing these beds opens them for new admissions.</p></div><button class="btn" onclick="go('discharge')">▶ Process Discharges →</button></div>`;
+  }
+  return html;
+}
+
+/* ----- nurse: record temperature ----- */
+function viewRecord(){
+  const ps=activePatients();
+  let list=ps;
+  if(view.filter==='due') list=ps.filter(p=>!tempToday(p));
+  if(view.filter==='done') list=ps.filter(tempToday);
+  const due=ps.filter(p=>!tempToday(p)).length;
+
+  let html=`<div class="hint">One reading per patient per day. Tap <b>Record</b>, enter the temperature, done. If a reading already exists, saving logs a <b>correction</b> - the earlier reading is kept in the history, not deleted.</div><div class="filter-row">
+    <button class="${view.filter==='due'?'on':''}" onclick="setFilter('due')">Due today (${due})</button>
+    <button class="${view.filter==='done'?'on':''}" onclick="setFilter('done')">Recorded (${ps.length-due})</button>
+    <button class="${view.filter==='all'?'on':''}" onclick="setFilter('all')">All (${ps.length})</button>
+  </div>`;
+  html+=`<div class="scroll-x"><table class="list"><tr><th>Room</th><th>Patient</th><th>Last reading</th><th>Admitted</th><th></th></tr>`;
+  list.forEach(p=>{
+    const t=tempToday(p);
+    html+=`<tr><td><b>${esc(p.room)}</b></td><td>${esc(p.name)}</td>
+      <td>${t?`<span class="pill ${isFever(t.value)?'r':'g'}">${t.value.toFixed(1)}°C</span>`:'<span class="pill grey">due</span>'}</td>
+      <td>${pretty(p.admittedOn)}</td>
+      <td><button class="btn sm" onclick="openPatient('${p.id}')">${t?'✏️ Correct':'🌡️ Record'}</button></td></tr>`;
+  });
+  html+=`</table></div>`;
+  return html;
+}
+
+/* ----- doctor: review queue ----- */
+function viewReview(){
+  const ps=activePatients();
+  const sorted=[...ps].sort((a,b)=>{
+    const ra=(tempToday(a)?0:1)-(tempToday(b)?0:1); if(ra) return ra;      // fresh readings first
+    const ea=(eligible(a)?0:1)-(eligible(b)?0:1); if(ea) return ea;        // discharge-eligible next
+    return a.room.localeCompare(b.room);
+  });
+  let list=sorted;
+  if(view.filter==='ready') list=sorted.filter(p=>tempToday(p)&&!hasVisitToday(p));
+  if(view.filter==='elig') list=sorted.filter(eligible);
+  if(view.filter==='seen') list=sorted.filter(hasVisitToday);
+
+  let html=`<div class="hint">Patients with a <b>fresh temperature</b> appear first. Open a patient to log your visit and treatment. When a patient completes <b>3 full fever-free days</b>, you can flag them for discharge from their page.</div><div class="filter-row">
+    <button class="${view.filter==='ready'?'on':''}" onclick="setFilter('ready')">Ready for review (${sorted.filter(p=>tempToday(p)&&!hasVisitToday(p)).length})</button>
+    <button class="${view.filter==='elig'?'on':''}" onclick="setFilter('elig')">Discharge-eligible (${sorted.filter(eligible).length})</button>
+    <button class="${view.filter==='seen'?'on':''}" onclick="setFilter('seen')">Visited today (${sorted.filter(hasVisitToday).length})</button>
+    <button class="${view.filter==='all'?'on':''}" onclick="setFilter('all')">All (${sorted.length})</button>
+  </div>`;
+  html+=`<div class="scroll-x"><table class="list"><tr><th>Room</th><th>Patient</th><th>Today's temp</th><th>Status</th><th></th></tr>`;
+  list.forEach(p=>{
+    const t=tempToday(p);
+    let st='';
+    if(eligible(p)&&!p.dischargeRecommended) st='<span class="pill b">eligible for discharge</span>';
+    else if(p.dischargeRecommended) st='<span class="pill b">discharge flagged</span>';
+    else if(hasVisitToday(p)) st='<span class="pill grey">visited</span>';
+    else if(!t) st='<span class="pill a">no reading yet</span>';
+    else st='<span class="pill g">ready</span>';
+    html+=`<tr><td><b>${esc(p.room)}</b></td><td>${esc(p.name)}</td>
+      <td>${t?`<span class="pill ${isFever(t.value)?'r':'g'}">${t.value.toFixed(1)}°C</span>`:'-'}</td>
+      <td>${st}</td>
+      <td><button class="btn sm" onclick="openPatient('${p.id}')">Open →</button></td></tr>`;
+  });
+  html+=`</table></div>`;
+  return html;
+}
+
+/* ----- admin: discharge queue ----- */
+function viewDischarge(){
+  const q=activePatients().filter(p=>p.dischargeRecommended);
+  let html=q.length?`<div class="scroll-x"><table class="list"><tr><th>Room</th><th>Patient</th><th>Days in ward</th><th>Flagged by</th><th>Check</th><th></th></tr>`:'';
+  q.forEach(p=>{
+    const v=p.visits[p.visits.length-1];
+    const ok=eligible(p);
+    html+=`<tr><td><b>${esc(p.room)}</b></td><td>${esc(p.name)}</td><td>${daysInWard(p)}</td><td>${v?esc(v.doctor):'-'}</td>
+      <td>${ok?'<span class="pill g">criterion holds</span>':'<span class="pill r">streak broken</span>'}</td>
+      <td>${ok?`<button class="btn sm g" onclick="discharge('${p.id}')">Discharge (cured)</button>`:`<button class="btn sm ghost" onclick="returnToDoctor('${p.id}')">Return to doctor</button>`}</td></tr>`;
+  });
+  if(q.length) html+=`</table></div>`;
+  else html=`<div class="card"><p style="color:var(--mut);font-size:14px">No patients are currently flagged for discharge. The queue fills when a doctor confirms a patient has completed ${CURE_DAYS} full fever-free days.</p></div>`;
+  const hist=[...state.outcomes].reverse().slice(0,10);
+  html+=`<div class="card" style="margin-top:16px"><h3>Recent outcomes</h3>`+
+    (hist.length?hist.map(o=>`<div class="log-line">${pretty(o.date)} - ${esc(o.name)} - <span class="pill ${o.outcome==='cured'?'g':'r'}">${o.outcome}</span></div>`).join(''):'<p style="color:var(--mut);font-size:14px">No outcomes recorded yet.</p>')+`</div>`;
+  return html;
+}
+
+/* ----- admin: admit ----- */
+function viewAdmit(){
+  const free=CAPACITY-activePatients().length;
+  if(free<=0) return `<div class="banner r">The facility is at full capacity (${CAPACITY}/${CAPACITY}). New admissions are blocked until a bed is freed by a discharge.</div>`;
+  return `<div class="banner b">${free} bed(s) available. Fill in the patient details to admit.</div>
+  <div class="card"><h3>New admission</h3>
+    <label class="f">Full name</label><input class="f" id="adm-name" placeholder="Patient name">
+    <label class="f">Age</label><input class="f" id="adm-age" type="number" min="0" max="120" placeholder="Years">
+    <label class="f">Gender</label><select class="f" id="adm-gender"><option>F</option><option>M</option><option>Other</option></select>
+    <label class="f">First temperature reading (°C)</label><input class="f" id="adm-temp" type="number" step="0.1" placeholder="e.g. 38.6">
+    <div class="err" id="adm-err"></div>
+    <div class="btn-row"><button class="btn" onclick="admit()">Admit patient</button></div>
+  </div>`;
+}
+
+/* ----- admin: quality ----- */
+function viewQuality(){
+  const m=mortality();
+  const over=m.rate>MORTALITY_BENCH;
+  const success=Math.round((100-m.rate)*10)/10;
+  return `<div class="grid stats">
+    <div class="stat"><div class="n" style="color:${over?'var(--red)':'var(--green)'}">${m.rate}%</div><div class="l">Mortality rate</div></div>
+    <div class="stat"><div class="n">${success}%</div><div class="l">Treatment success</div></div>
+    <div class="stat"><div class="n">${m.tot}</div><div class="l">Total outcomes</div></div>
+    <div class="stat"><div class="n">${m.dec}</div><div class="l">Deaths</div></div>
+  </div>
+  <div class="card"><h3>Mortality vs benchmark (${MORTALITY_BENCH}%)</h3>
+    <div class="bar ${over?'r':'g'}" style="height:14px"><div style="width:${Math.min(100,m.rate*3)}%"></div></div>
+    <p style="font-size:13px;color:var(--mut);margin-top:8px">${over
+      ?`The centre's mortality rate of ${m.rate}% exceeds the expected ${MORTALITY_BENCH}%. Escalate to the head doctor and review treatment protocols.`
+      :`The centre is within the expected ${MORTALITY_BENCH}% mortality benchmark.`}</p></div>`;
+}
+
+/* ----- shared: all patients ----- */
+function viewPatients(){
+  const ps=[...activePatients()].sort((a,b)=>a.room.localeCompare(b.room));
+  let html=`<div class="hint">Every admitted patient and today's status at a glance. <b>Tap any row</b> to open the full record - temperature trend, visits and actions.</div><div class="scroll-x"><table class="list"><tr><th>Room</th><th>Patient</th><th>Age/Sex</th><th>Admitted</th><th>Today</th></tr>`;
+  ps.forEach(p=>{
+    const t=tempToday(p);
+    html+=`<tr class="clickable" onclick="openPatient('${p.id}')"><td><b>${esc(p.room)}</b></td><td>${esc(p.name)}</td>
+      <td>${p.age}/${esc(p.gender)}</td><td>${pretty(p.admittedOn)} (${daysInWard(p)}d)</td>
+      <td>${t?`<span class="pill ${isFever(t.value)?'r':'g'}">${t.value.toFixed(1)}°C</span>`:'<span class="pill grey">due</span>'}
+      ${hasVisitToday(p)?' <span class="pill b">seen</span>':''}${eligible(p)?' <span class="pill b">eligible</span>':''}</td></tr>`;
+  });
+  return html+`</table></div>`;
+}
+
+/* ----- patient detail ----- */
+function viewPatient(){
+  const p=state.patients.find(x=>x.id===view.patientId);
+  if(!p) return '<div class="card">Patient not found.</div>';
+  const t=tempToday(p);
+  const el=eligible(p);
+  const recent=[...p.temps].slice(-7);
+  const max=41;
+
+  let html=`<button class="back" onclick="view.patientId=null;render()">← Back to list</button>
+  <div class="card">
+    <div class="detail-head">
+      <div><h3 style="font-size:18px">${esc(p.name)}</h3><p style="color:var(--mut);font-size:13px">${p.id} · ${p.age}${esc(p.gender)} · Room ${esc(p.room)} · admitted ${pretty(p.admittedOn)} (day ${daysInWard(p)})</p></div>
+      <div>${el?'<span class="pill b">meets discharge criterion</span>':''} ${p.dischargeRecommended?'<span class="pill b">flagged for discharge</span>':''}</div>
+    </div>
+    ${session.role==='doctor'&&!t?'<div class="banner a" style="margin-top:12px">⚠️ No temperature recorded for this patient today. Reviewing without a fresh reading is discouraged - ask a nurse to record it first.</div>':''}
+    <div class="kv">
+      <div>Today's temp<b>${t?`<span style="color:${isFever(t.value)?'var(--red)':'var(--green)'}">${t.value.toFixed(1)}°C</span>`:'not recorded'}</b></div>
+      <div>Doctor visit today<b>${hasVisitToday(p)?'done':'pending'}</b></div>
+      <div>Fever-free streak<b>${streak(p)} day(s)</b></div>
+      <div>Readings today<b>${effectiveTempsOn(p,todayStr()).length}</b></div>
+    </div>
+    <h3>Temperature trend (last ${recent.length} day(s))</h3>
+    <div class="chart">${recent.map(r=>`<div class="col"><span class="cv">${r.value.toFixed(1)}</span><div class="cb ${isFever(r.value)?'fever':''}" style="height:${Math.max(4,(r.value-34)/(max-34)*100)}%"></div><span class="cl">${pretty(r.date)}</span></div>`).join('')}</div>
+  </div>`;
+
+  if(session.role==='nurse'){
+    html+=`<div class="card"><h3>Record temperature</h3>
+      ${t?`<div class="banner a">A reading of ${t.value.toFixed(1)}°C was already recorded today by ${esc(t.by)}. Saving again logs a correction; the earlier reading stays in the history.</div>`:''}
+      <label class="f">Temperature (°C)</label>
+      <input class="f" id="temp-in" type="number" step="0.1" inputmode="decimal" placeholder="36.5 - 42.0">
+      <div class="err" id="temp-err"></div>
+      <div class="btn-row"><button class="btn" onclick="saveTemp('${p.id}')">💾 Save reading</button></div></div>`;
+  }
+
+  if(session.role==='doctor'){
+    html+=`<div class="card"><h3>Doctor visit</h3>
+      <label class="f">Treatment</label>
+      <select class="f" id="trt">${TREATMENTS.map(x=>`<option>${x}</option>`).join('')}</select>
+      <label class="f">Notes (optional)</label>
+      <textarea class="f" id="visit-note" rows="2" placeholder="Observations, medication changes..."></textarea>
+      <div class="btn-row">
+        <button class="btn" onclick="saveVisit('${p.id}')">✓ ${hasVisitToday(p)?'Log another visit':'Log visit'}</button>
+        <button class="btn g" onclick="recommend('${p.id}')" ${(!el||p.dischargeRecommended)?'disabled':''} title="${el?'Flag this patient for admin discharge':'Requires '+CURE_DAYS+' full fever-free days with recorded readings'}">🎉 Recommend discharge</button>
+        <button class="btn r" onclick="markDeceased('${p.id}')">Mark deceased</button>
+      </div>
+      ${(!el&&!p.dischargeRecommended)?`<p style="font-size:12px;color:var(--mut);margin-top:8px">Discharge is locked: needs ${CURE_DAYS} consecutive fever-free days on record (current streak: ${streak(p)}).</p>`:''}
+    </div>`;
+  }
+
+  html+=`<div class="card"><h3>History</h3>`+
+    [...p.temps].slice(-6).reverse().map(r=>`<div class="log-line"${r.superseded?' style="opacity:.55"':''}>${pretty(r.date)} - ${r.value.toFixed(1)}°C ${isFever(r.value)?'<span class="pill r">fever</span>':'<span class="pill g">normal</span>'}${r.superseded?' <span class="pill grey">superseded</span>':''}${r.corrected?' <span class="pill b">correction</span>':''} · ${esc(r.by)}</div>`).join('')+
+    [...p.visits].slice(-4).reverse().map(v=>`<div class="log-line">${pretty(v.date)} - visit by ${esc(v.doctor)}${v.beforeTemp?' <span class="pill a">before temp</span>':''} · ${esc(v.treatment)}${v.note?' · '+esc(v.note):''}</div>`).join('')+
+  `</div>`;
+  return html;
+}
+function streak(p){
+  let s=0;
+  for(let k=1;k<=60;k++){
+    const recs=effectiveTempsOn(p,daysAgoStr(k));
+    if(!recs.length||recs.some(r=>isFever(r.value))) break;
+    s++;
+  }
+  return s;
+}
+
+/* ================= actions ================= */
+function saveTemp(id){
+  const p=state.patients.find(x=>x.id===id);
+  const v=parseFloat(document.getElementById('temp-in').value);
+  const err=document.getElementById('temp-err');
+  if(isNaN(v)){err.textContent='Enter a temperature.';return;}
+  if(v<34||v>43){err.textContent='Reading outside the plausible range (34-43°C). Check the thermometer and try again.';return;}
+  const existing=effectiveTempsOn(p,todayStr());
+  if(existing.length){ p.temps.forEach(t=>{ if(t.date===todayStr() && !t.superseded) t.superseded=true; }); }
+  p.temps.push({date:todayStr(), value:Math.round(v*10)/10, by:session.name, corrected:existing.length>0});
+  save();
+  toast(existing.length?`Correction saved: ${v.toFixed(1)}°C for ${p.name} - earlier reading kept in history`:`Recorded ${v.toFixed(1)}°C for ${p.name}${isFever(v)?' - fever':''}`);
+  render();
+}
+function saveVisit(id){
+  const p=state.patients.find(x=>x.id===id);
+  const treatment=document.getElementById('trt').value;
+  const note=document.getElementById('visit-note').value.trim();
+  const before=!tempToday(p);
+  p.visits.push({date:todayStr(), doctor:session.name, treatment, note, beforeTemp:before});
+  save();
+  toast(before?`Visit logged for ${p.name} - flagged: no temperature reading yet today`:`Visit logged for ${p.name}`);
+  render();
+}
+function recommend(id){
+  const p=state.patients.find(x=>x.id===id);
+  if(!eligible(p)) return;
+  p.dischargeRecommended=true;
+  if(!hasVisitToday(p)) p.visits.push({date:todayStr(), doctor:session.name, treatment:'Discharge review', note:'', beforeTemp:!tempToday(p)});
+  save();
+  toast(`${p.name} flagged for discharge - admin has been notified`);
+  render();
+}
+function markDeceased(id){
+  const p=state.patients.find(x=>x.id===id);
+  if(!confirm(`Record ${p.name} (${p.room}) as deceased? This frees the bed and updates the mortality statistics.`)) return;
+  p.status='deceased';
+  state.outcomes.push({id:p.id, name:p.name, outcome:'deceased', date:todayStr()});
+  save();
+  toast(`${p.name} recorded as deceased. Bed ${p.room} is now free.`);
+  view.patientId=null; render();
+}
+function discharge(id){
+  const p=state.patients.find(x=>x.id===id);
+  if(!eligible(p)){ toast(`Blocked: ${p.name} no longer meets the ${CURE_DAYS}-day fever-free criterion. Returned for doctor re-review.`); p.dischargeRecommended=false; save(); render(); return; }
+  if(!confirm(`Discharge ${p.name} (${p.room}) as cured? Bed ${p.room} will become available.`)) return;
+  p.status='discharged';
+  state.outcomes.push({id:p.id, name:p.name, outcome:'cured', date:todayStr()});
+  save();
+  toast(`${p.name} discharged. Bed ${p.room} is now free.`);
+  render();
+}
+function returnToDoctor(id){
+  const p=state.patients.find(x=>x.id===id);
+  p.dischargeRecommended=false;
+  save();
+  toast(`${p.name} returned to the doctor queue - discharge flag cleared`);
+  render();
+}
+function admit(){
+  const name=document.getElementById('adm-name').value.trim();
+  const age=parseInt(document.getElementById('adm-age').value,10);
+  const gender=document.getElementById('adm-gender').value;
+  const temp=parseFloat(document.getElementById('adm-temp').value);
+  const err=document.getElementById('adm-err');
+  if(name.length<3){err.textContent='Enter the patient\'s full name.';return;}
+  if(isNaN(age)||age<0||age>120){err.textContent='Enter a valid age.';return;}
+  if(isNaN(temp)||temp<34||temp>43){err.textContent='Enter an admission temperature between 34 and 43°C.';return;}
   if(activePatients().length>=CAPACITY){err.textContent='Facility is full - discharge a patient first.';return;}
   const used=new Set(activePatients().map(p=>p.room));
   let room=null;
